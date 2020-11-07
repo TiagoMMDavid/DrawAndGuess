@@ -9,7 +9,7 @@
         android:supportsRtl="true"
         android:roundIcon="@mipmap/launcher_icon_round"
         android:theme="@style/AppTheme">
-        <activity android:name=".DragDraw" />
+        <activity android:name=".DragGameActivity" />
         <activity android:name=".DragLauncher">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

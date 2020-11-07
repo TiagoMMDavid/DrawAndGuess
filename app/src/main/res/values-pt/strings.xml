@@ -4,4 +4,5 @@
     <string name="roundNumber">Número de Rondas</string>
     <string name="playerNumber">Número de Jogadores</string>
     <string name="start">Iniciar</string>
+    <string name="guessHint">A sua tentativa…</string>
 </resources>

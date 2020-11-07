@@ -3,4 +3,5 @@
     <string name="roundNumber">Number of Rounds</string>
     <string name="playerNumber">Number of Players</string>
     <string name="start">Start</string>
+    <string name="guessHint">Your guess…</string>
 </resources>
