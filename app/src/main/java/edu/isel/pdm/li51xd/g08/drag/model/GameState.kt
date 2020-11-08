@@ -1,7 +1,7 @@
 package edu.isel.pdm.li51xd.g08.drag.model
 
 import android.os.Parcelable
-import edu.isel.pdm.li51xd.g08.drag.model.GameState.State.*
+import edu.isel.pdm.li51xd.g08.drag.model.GameState.State.DEFINING
 import kotlinx.android.parcel.Parcelize
 import java.util.*
 

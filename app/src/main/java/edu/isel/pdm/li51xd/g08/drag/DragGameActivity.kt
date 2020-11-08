@@ -1,9 +1,8 @@
 package edu.isel.pdm.li51xd.g08.drag
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityDrawBinding
 import edu.isel.pdm.li51xd.g08.drag.utils.DrawingListener
 
@@ -20,12 +19,9 @@ class DragGameActivity : AppCompatActivity() {
                 viewModel.addPoint(x, y, isInitial)
             }
 
-            override fun onSizeChange(sizeX: Float, sizeY: Float) {
-                val matrix = viewModel.getScaleMatrix(sizeX, sizeY)
-                binding.drawing.drawModel(viewModel.game.currentDrawing, matrix)
+            override fun onSizeChange() {
+                binding.drawing.drawModel(viewModel.game.currentDrawing)
             }
-
         })
-        binding.drawing.drawModel(viewModel.game.currentDrawing)
     }
 }

@@ -3,13 +3,14 @@ package edu.isel.pdm.li51xd.g08.drag
 import android.content.Intent
 import android.os.Bundle
 import android.os.Parcelable
-import android.util.Log
 import android.widget.NumberPicker
 import androidx.appcompat.app.AppCompatActivity
 import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityLauncherBinding
 import edu.isel.pdm.li51xd.g08.drag.model.GameState
-import edu.isel.pdm.li51xd.g08.drag.model.GameState.State
-import edu.isel.pdm.li51xd.g08.drag.model.GameState.State.*
+import edu.isel.pdm.li51xd.g08.drag.model.GameState.State.DEFINING
+import edu.isel.pdm.li51xd.g08.drag.model.GameState.State.DRAWING
+import edu.isel.pdm.li51xd.g08.drag.model.GameState.State.GUESSING
+import edu.isel.pdm.li51xd.g08.drag.model.GameState.State.RESULTS
 import kotlinx.android.parcel.Parcelize
 
 
