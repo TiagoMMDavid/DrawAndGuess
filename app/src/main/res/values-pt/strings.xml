@@ -5,4 +5,6 @@
     <string name="playerNumber">Número de Jogadores</string>
     <string name="start">Iniciar</string>
     <string name="guessHint">A sua tentativa…</string>
+    <string name="submitButton">Submeter</string>
+    <string name="definingHint">Escolha uma palavra…</string>
 </resources>

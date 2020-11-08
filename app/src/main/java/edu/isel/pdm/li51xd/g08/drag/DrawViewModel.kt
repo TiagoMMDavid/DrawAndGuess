@@ -2,9 +2,12 @@ package edu.isel.pdm.li51xd.g08.drag
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import edu.isel.pdm.li51xd.g08.drag.model.Drawing
 import edu.isel.pdm.li51xd.g08.drag.model.GameState
 import edu.isel.pdm.li51xd.g08.drag.model.Point
 import edu.isel.pdm.li51xd.g08.drag.model.Vector
+import edu.isel.pdm.li51xd.g08.drag.model.Word
+import edu.isel.pdm.li51xd.g08.drag.utils.GameListener
 
 const val SAVED_STATE_KEY = "DRAG.State"
 
@@ -13,21 +16,46 @@ class DrawViewModel(private val savedState: SavedStateHandle) : ViewModel() {
         savedState[SAVED_STATE_KEY] ?: GameState()
     }
 
-    fun save() {
+    private var gameListener: GameListener? = null
+
+    fun setOnStateChangeListener(gameListener: GameListener) {
+        this.gameListener = gameListener
+    }
+
+    fun startGame() {
         savedState[SAVED_STATE_KEY] = game
+        gameListener?.onStateChange(game.state)
+    }
+
+    fun defineWord(word: String) {
+        game.drawGuesses.add(Word(word))
+
+        game.state = GameState.State.DRAWING
+        gameListener?.onStateChange(game.state)
+    }
+
+    fun defineDrawing() {
+        game.drawGuesses.add(game.currentDrawing)
+
+        game.state = GameState.State.GUESSING
+        gameListener?.onStateChange(game.state)
+    }
+
+    fun defineGuess(word: String) {
+        game.drawGuesses.add(Word(word))
+        game.currentDrawing = Drawing()
+
+        game.state = GameState.State.DRAWING
+        gameListener?.onStateChange(game.state)
     }
 
     fun addPoint(x: Float, y: Float, initial: Boolean) {
         val currDrawing = game.currentDrawing
-        var currVector = currDrawing.currVector
 
-        if (initial && currVector.points.isNotEmpty()) {
-            currDrawing.vectors.add(currVector)
-            currDrawing.currVector = Vector()
-            currVector = currDrawing.currVector
+        if (initial) {
+            currDrawing.vectors.add(Vector())
         }
 
-        currVector.points.add(Point(x, y))
-        save()
+        currDrawing.vectors.last.points.add(Point(x, y))
     }
 }

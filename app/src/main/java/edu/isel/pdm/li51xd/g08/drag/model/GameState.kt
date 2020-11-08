@@ -6,10 +6,9 @@ import kotlinx.android.parcel.Parcelize
 import java.util.*
 
 @Parcelize
-data class GameState(
-        val currentDrawing: Drawing = Drawing(),
-        val drawGuesses: LinkedList<DrawGuess> = LinkedList(),
-        var state: State = DEFINING) : Parcelable {
-            enum class State { DEFINING, DRAWING, GUESSING, RESULTS
-        }
+data class GameState(var currentDrawing: Drawing = Drawing(),
+                     val drawGuesses: LinkedList<DrawGuess> = LinkedList(),
+                     var state: State = DEFINING) : Parcelable {
+
+        enum class State { DEFINING, DRAWING, GUESSING, RESULTS }
 }

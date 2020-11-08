@@ -29,13 +29,16 @@ class DrawingView(context: Context?, attrs: AttributeSet?) : View(context, attrs
     }
 
     fun drawModel(model: Drawing) {
-        currPath.reset()
+        clear()
         model.vectors.forEach {
             addVectorToPath(it)
         }
-        addVectorToPath(model.currVector)
 
         invalidate()
+    }
+
+    fun clear() {
+        currPath.reset()
     }
 
     fun setOnDrawChangeListener(drawingListener: DrawingListener) {
@@ -56,17 +59,19 @@ class DrawingView(context: Context?, attrs: AttributeSet?) : View(context, attrs
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-        when (event?.action) {
-            MotionEvent.ACTION_DOWN -> {
-                currPath.moveTo(event.x, event.y)
-                drawingListener?.onNewPoint(event.x / viewWidth, event.y / viewHeight, true)
+        if (isEnabled) {
+            when (event?.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    currPath.moveTo(event.x, event.y)
+                    drawingListener?.onNewPoint(event.x / viewWidth, event.y / viewHeight, true)
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    currPath.lineTo(event.x, event.y)
+                    drawingListener?.onNewPoint(event.x / viewWidth, event.y / viewHeight, false)
+                }
             }
-            MotionEvent.ACTION_MOVE -> {
-                currPath.lineTo(event.x, event.y)
-                drawingListener?.onNewPoint(event.x / viewWidth, event.y / viewHeight, false)
-            }
+            invalidate()
         }
-        invalidate()
         return true
     }
 
