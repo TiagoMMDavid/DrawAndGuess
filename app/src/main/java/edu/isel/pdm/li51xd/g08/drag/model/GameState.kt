@@ -5,7 +5,7 @@ import edu.isel.pdm.li51xd.g08.drag.model.GameState.State.DEFINING
 import kotlinx.android.parcel.Parcelize
 import java.util.*
 
-const val MIN_PLAYERS = 2
+const val MIN_PLAYERS = 5
 const val MAX_PLAYERS = 10
 
 const val MIN_ROUNDS = 1
