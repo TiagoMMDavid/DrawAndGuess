@@ -7,4 +7,8 @@
     <string name="guessHint">A sua tentativa…</string>
     <string name="submitButton">Submeter</string>
     <string name="definingHint">Escolha uma palavra…</string>
+    <string name="guessEmpty">Tem de excrever uma palavra!</string>
+    <string name="roundEnding">Fim da Ronda %1$d de %2$d</string>
+    <string name="finishGame">Terminar</string>
+    <string name="finishRound">Terminar Ronda</string>
 </resources>

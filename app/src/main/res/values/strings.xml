@@ -6,4 +6,8 @@
     <string name="guessHint">Your guess…</string>
     <string name="submitButton">Submit</string>
     <string name="definingHint">Choose a word…</string>
+    <string name="guessEmpty">You must type a word!</string>
+    <string name="roundEnding">End of Round %1$d of %2$d</string>
+    <string name="finishGame">Finish</string>
+    <string name="finishRound">Finish Round</string>
 </resources>

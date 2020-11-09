@@ -13,7 +13,7 @@
         android:layout_marginStart="18dp"
         android:layout_marginTop="18dp"
         android:layout_marginEnd="18dp"
-        android:background="#BEF1CA"
+        android:background="@color/colorCanvas"
         app:layout_constraintBottom_toTopOf="@+id/relativeLayout"
         app:layout_constraintDimensionRatio="0.7"
         app:layout_constraintEnd_toEndOf="parent"
@@ -24,11 +24,11 @@
     <RelativeLayout
         android:id="@+id/relativeLayout"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="22dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/submitButton"
         app:layout_constraintEnd_toStartOf="@+id/submitButton"
-        app:layout_constraintStart_toStartOf="@+id/drawing">
+        app:layout_constraintStart_toStartOf="@+id/drawing"
+        app:layout_constraintTop_toTopOf="@+id/submitButton">
 
         <EditText
             android:id="@+id/drawingWord"
@@ -36,12 +36,12 @@
             android:layout_height="wrap_content"
             android:autofillHints=""
             android:fontFamily="sans-serif-medium"
-            android:gravity="start"
+            android:gravity="bottom|start"
             android:hint="@string/guessHint"
             android:inputType="textMultiLine"
+            android:maxLength="40"
             android:maxLines="3"
-            android:maxLength="50"
-            android:textSize="24sp" />
+            android:textSize="18sp" />
     </RelativeLayout>
 
     <Button

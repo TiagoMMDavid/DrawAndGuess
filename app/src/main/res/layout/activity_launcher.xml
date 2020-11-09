@@ -26,15 +26,19 @@
 
     <TextView
         android:id="@+id/playerCountText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="172dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="18dp"
+        android:layout_marginEnd="18dp"
+        android:gravity="center"
         android:text="@string/playerNumber"
+        android:textAlignment="center"
         android:textSize="18sp"
-        app:layout_constraintBottom_toTopOf="@+id/roundCountText"
+        app:layout_constraintBottom_toBottomOf="@+id/playerCount"
         app:layout_constraintEnd_toStartOf="@+id/playerCount"
         app:layout_constraintHorizontal_bias="0.496"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/playerCount" />
 
     <NumberPicker
         android:id="@+id/playerCount"
@@ -56,14 +60,18 @@
 
     <TextView
         android:id="@+id/roundCountText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="204dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="18dp"
+        android:layout_marginEnd="18dp"
+        android:gravity="center"
         android:text="@string/roundNumber"
+        android:textAlignment="center"
         android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/roundCount"
         app:layout_constraintEnd_toStartOf="@+id/roundCount"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/roundCount" />
 
     <Button
         android:id="@+id/startGameButton"

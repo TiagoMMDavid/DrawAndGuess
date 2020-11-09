@@ -1,11 +1,15 @@
 package edu.isel.pdm.li51xd.g08.drag
 
+import android.content.Intent
 import android.os.Bundle
+import android.view.Gravity
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityDrawBinding
+import edu.isel.pdm.li51xd.g08.drag.model.GameConfiguration
 import edu.isel.pdm.li51xd.g08.drag.model.GameState.State.DEFINING
 import edu.isel.pdm.li51xd.g08.drag.model.GameState.State.DRAWING
 import edu.isel.pdm.li51xd.g08.drag.model.GameState.State.GUESSING
@@ -18,7 +22,7 @@ class DragGameActivity : AppCompatActivity() {
     private val binding: ActivityDrawBinding by lazy { ActivityDrawBinding.inflate(layoutInflater) }
     private val viewModel: DrawViewModel by viewModels()
 
-    private fun drawDefining() {
+    private fun drawDefining(toast: Toast) {
         binding.drawing.visibility = INVISIBLE
         binding.drawing.isEnabled = false
 
@@ -28,6 +32,8 @@ class DragGameActivity : AppCompatActivity() {
             val text = binding.drawingWord.text.toString()
             if (text.isNotEmpty()) {
                 viewModel.defineWord(text)
+            } else {
+                toast.show()
             }
         }
     }
@@ -44,7 +50,7 @@ class DragGameActivity : AppCompatActivity() {
         }
     }
 
-    private fun drawGuessing() {
+    private fun drawGuessing(toast: Toast) {
         binding.drawing.visibility = VISIBLE
         binding.drawing.isEnabled = false
 
@@ -56,18 +62,28 @@ class DragGameActivity : AppCompatActivity() {
             val text = binding.drawingWord.text.toString()
             if (text.isNotEmpty()) {
                 viewModel.defineGuess(text)
-                binding.drawing.clear()
+                binding.drawing.clearCanvas()
+            } else {
+                toast.show()
             }
         }
     }
 
     private fun drawResults() {
-        TODO()
+        viewModel.game.currRound
+        val myIntent = Intent(this, DragResultsActivity::class.java).apply {
+            putExtra(GAME_CONFIGURATION_KEY, viewModel.config)
+            putExtra(GAME_STATE_KEY, viewModel.game)
+        }
+        startActivity(myIntent)
+        // TODO: NÃO FAZER FINISH
+        finish()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+        val toast = Toast.makeText(applicationContext, getString(R.string.guessEmpty), Toast.LENGTH_SHORT)
 
         binding.drawingWord.addTextChangedListener(EditTextNoEnter())
         binding.drawing.setOnDrawChangeListener(object: DrawingListener {
@@ -82,9 +98,9 @@ class DragGameActivity : AppCompatActivity() {
 
         viewModel.setOnStateChangeListener {state ->
             when(state) {
-                DEFINING -> drawDefining()
+                DEFINING -> drawDefining(toast)
                 DRAWING -> drawDrawing()
-                GUESSING -> drawGuessing()
+                GUESSING -> drawGuessing(toast)
                 RESULTS -> drawResults()
             }
         }

@@ -8,21 +8,24 @@
 
     <TextView
         android:id="@+id/playerCountText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="76dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="18dp"
+        android:layout_marginEnd="18dp"
+        android:gravity="center"
         android:text="@string/playerNumber"
+        android:textAlignment="center"
         android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="@+id/playerCount"
         app:layout_constraintEnd_toStartOf="@+id/playerCount"
         app:layout_constraintStart_toEndOf="@+id/gameLogo"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/playerCount" />
 
     <ImageView
         android:id="@+id/gameLogo"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="302dp"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/startGameButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"
@@ -32,7 +35,7 @@
     <NumberPicker
         android:id="@+id/playerCount"
         android:layout_width="61dp"
-        android:layout_height="115dp"
+        android:layout_height="125dp"
         android:layout_marginTop="32dp"
         android:layout_marginEnd="80dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -41,7 +44,7 @@
     <NumberPicker
         android:id="@+id/roundCount"
         android:layout_width="61dp"
-        android:layout_height="115dp"
+        android:layout_height="125dp"
         android:layout_marginEnd="80dp"
         android:layout_marginBottom="64dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -49,23 +52,25 @@
 
     <TextView
         android:id="@+id/roundCountText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="112dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="18dp"
+        android:gravity="center"
         android:text="@string/roundNumber"
+        android:textAlignment="center"
         android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/roundCount"
         app:layout_constraintEnd_toStartOf="@+id/roundCount"
-        app:layout_constraintStart_toEndOf="@+id/gameLogo" />
+        app:layout_constraintStart_toStartOf="@+id/playerCountText"
+        app:layout_constraintTop_toTopOf="@+id/roundCount" />
 
     <Button
         android:id="@+id/startGameButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="320dp"
-        android:layout_marginBottom="24dp"
         android:text="@string/start"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="@+id/roundCountText"
+        app:layout_constraintTop_toBottomOf="@+id/roundCountText" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

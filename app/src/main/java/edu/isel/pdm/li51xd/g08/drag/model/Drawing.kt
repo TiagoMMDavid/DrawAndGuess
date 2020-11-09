@@ -9,7 +9,7 @@ import java.util.*
 data class Point(val x: Float, val y: Float) : Parcelable
 
 @Parcelize
-data class Vector(val points: LinkedList<Point> = LinkedList()) : Parcelable
+data class Vector(val points: ArrayList<Point> = ArrayList()) : Parcelable
 
 @Parcelize
 class Drawing(val vectors: LinkedList<Vector> = LinkedList()) : DrawGuess {

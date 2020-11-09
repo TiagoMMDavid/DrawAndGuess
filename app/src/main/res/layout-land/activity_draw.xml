@@ -16,7 +16,7 @@
         android:layout_marginTop="18dp"
         android:layout_marginEnd="18dp"
         android:layout_marginBottom="18dp"
-        android:background="#BEF1CA"
+        android:background="@color/colorCanvas"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintDimensionRatio="0.7"
         app:layout_constraintEnd_toEndOf="parent"
@@ -48,16 +48,15 @@
             android:id="@+id/drawingWord"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
+            android:layout_centerInParent="true"
             android:autofillHints=""
             android:fontFamily="sans-serif-medium"
-            android:gravity="center"
+            android:gravity="bottom|center"
             android:hint="@string/guessHint"
             android:inputType="textMultiLine"
-            android:maxLength="50"
+            android:maxLength="40"
             android:maxLines="3"
-            android:textSize="24sp" />
+            android:textSize="18sp" />
     </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

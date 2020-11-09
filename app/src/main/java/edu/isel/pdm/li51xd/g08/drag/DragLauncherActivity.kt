@@ -2,33 +2,17 @@ package edu.isel.pdm.li51xd.g08.drag
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.Parcelable
 import android.widget.NumberPicker
 import androidx.appcompat.app.AppCompatActivity
 import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityLauncherBinding
-import edu.isel.pdm.li51xd.g08.drag.model.GameState
-import edu.isel.pdm.li51xd.g08.drag.model.GameState.State.DEFINING
-import edu.isel.pdm.li51xd.g08.drag.model.GameState.State.DRAWING
-import edu.isel.pdm.li51xd.g08.drag.model.GameState.State.GUESSING
-import edu.isel.pdm.li51xd.g08.drag.model.GameState.State.RESULTS
-import kotlinx.android.parcel.Parcelize
+import edu.isel.pdm.li51xd.g08.drag.model.*
 
-
-private const val MIN_PLAYERS = 5
-private const val MAX_PLAYERS = 10
-
-private const val MIN_ROUNDS = 1
-private const val MAX_ROUNDS = 10
-
-const val LAUNCHER_STATE_KEY = "DRAG.LauncherState"
-
-@Parcelize
-data class LauncherState(val playerCount: Int, val roundCount: Int) : Parcelable
+const val GAME_CONFIGURATION_KEY = "DRAG.GameConfiguration"
 
 class DragLauncher : AppCompatActivity() {
     private val binding: ActivityLauncherBinding by lazy { ActivityLauncherBinding.inflate(layoutInflater) }
 
-    private fun setUpCounters(playerCount: NumberPicker, roundCount: NumberPicker, savedState: LauncherState?) {
+    private fun setUpCounters(playerCount: NumberPicker, roundCount: NumberPicker, savedState: GameConfiguration?) {
         playerCount.maxValue = MAX_PLAYERS
         playerCount.minValue = MIN_PLAYERS
         roundCount.maxValue = MAX_ROUNDS
@@ -42,7 +26,7 @@ class DragLauncher : AppCompatActivity() {
 
     private fun startGame() {
         val myIntent = Intent(this, DragGameActivity::class.java).apply {
-            putExtra(LAUNCHER_STATE_KEY, LauncherState(binding.playerCount.value, binding.roundCount.value))
+            putExtra(GAME_CONFIGURATION_KEY, GameConfiguration(binding.playerCount.value, binding.roundCount.value))
         }
         startActivity(myIntent)
     }
@@ -50,13 +34,10 @@ class DragLauncher : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        val savedState = savedInstanceState?.getParcelable<LauncherState>(LAUNCHER_STATE_KEY)
-        val gameState = savedInstanceState?.getParcelable<GameState>(SAVED_STATE_KEY)
+        val savedState = savedInstanceState?.getParcelable<GameConfiguration>(GAME_CONFIGURATION_KEY)
+        val gameState = savedInstanceState?.getParcelable<GameState>(GAME_STATE_KEY)
         if (gameState != null) {
-            when(gameState.state) {
-                DEFINING, DRAWING, GUESSING -> startGame()
-                RESULTS -> TODO("Implement results activity")
-            }
+            startGame()
         } else {
             setUpCounters(binding.playerCount, binding.roundCount, savedState)
             binding.startGameButton.setOnClickListener {startGame()}
@@ -65,6 +46,6 @@ class DragLauncher : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putParcelable(LAUNCHER_STATE_KEY, LauncherState(binding.playerCount.value, binding.roundCount.value))
+        outState.putParcelable(GAME_CONFIGURATION_KEY, GameConfiguration(binding.playerCount.value, binding.roundCount.value))
     }
 }
