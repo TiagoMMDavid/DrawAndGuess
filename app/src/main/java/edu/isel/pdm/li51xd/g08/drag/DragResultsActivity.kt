@@ -45,9 +45,11 @@ class DragResultsActivity : AppCompatActivity() {
         val drawIntent = Intent(this, DragGameActivity::class.java).apply {
             putExtra(GAME_CONFIGURATION_KEY, config)
             putExtra(GAME_STATE_KEY, GameState(currRound = nextRound))
-            addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+            //addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
         }
         startActivity(drawIntent)
+        // TODO: Add flags to intent instead of finishing activity
+        finish()
     }
 
     private fun drawResult(drawGuess: DrawGuess) {

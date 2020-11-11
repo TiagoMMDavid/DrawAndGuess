@@ -2,6 +2,7 @@ package edu.isel.pdm.li51xd.g08.drag
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.NumberPicker
 import androidx.appcompat.app.AppCompatActivity
 import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityLauncherBinding
@@ -32,7 +33,7 @@ class DragLauncher : AppCompatActivity() {
     private fun startGame() {
         val drawIntent = Intent(this, DragGameActivity::class.java).apply {
             putExtra(GAME_CONFIGURATION_KEY, GameConfiguration(binding.playerCount.value, binding.roundCount.value))
-            addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+            //addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
         }
         startActivity(drawIntent)
     }

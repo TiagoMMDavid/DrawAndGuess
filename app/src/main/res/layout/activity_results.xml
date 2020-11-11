@@ -51,12 +51,14 @@
 
     <Button
         android:id="@+id/finishButton"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
         android:layout_marginBottom="16dp"
         android:text="@string/finishGame"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/drawing" />
+        app:layout_constraintEnd_toEndOf="@+id/drawing"
+        app:layout_constraintStart_toEndOf="@+id/nextButton" />
 
     <TextView
         android:id="@+id/guessText"

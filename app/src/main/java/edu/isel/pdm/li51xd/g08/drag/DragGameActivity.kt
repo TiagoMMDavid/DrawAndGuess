@@ -71,9 +71,11 @@ class DragGameActivity : AppCompatActivity() {
         val resultIntent = Intent(this, DragResultsActivity::class.java).apply {
             putExtra(GAME_CONFIGURATION_KEY, viewModel.config)
             putExtra(GAME_STATE_KEY, viewModel.game)
-            addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+            //addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
         }
         startActivity(resultIntent)
+        // TODO: Add flags to intent instead of finishing activity
+        finish()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
