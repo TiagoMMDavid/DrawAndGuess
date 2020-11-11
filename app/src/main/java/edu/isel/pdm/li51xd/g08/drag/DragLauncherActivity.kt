@@ -5,7 +5,12 @@ import android.os.Bundle
 import android.widget.NumberPicker
 import androidx.appcompat.app.AppCompatActivity
 import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityLauncherBinding
-import edu.isel.pdm.li51xd.g08.drag.model.*
+import edu.isel.pdm.li51xd.g08.drag.model.GameConfiguration
+import edu.isel.pdm.li51xd.g08.drag.model.GameState
+import edu.isel.pdm.li51xd.g08.drag.model.MAX_PLAYERS
+import edu.isel.pdm.li51xd.g08.drag.model.MAX_ROUNDS
+import edu.isel.pdm.li51xd.g08.drag.model.MIN_PLAYERS
+import edu.isel.pdm.li51xd.g08.drag.model.MIN_ROUNDS
 
 const val GAME_CONFIGURATION_KEY = "DRAG.GameConfiguration"
 
@@ -25,10 +30,11 @@ class DragLauncher : AppCompatActivity() {
     }
 
     private fun startGame() {
-        val myIntent = Intent(this, DragGameActivity::class.java).apply {
+        val drawIntent = Intent(this, DragGameActivity::class.java).apply {
             putExtra(GAME_CONFIGURATION_KEY, GameConfiguration(binding.playerCount.value, binding.roundCount.value))
+            addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
         }
-        startActivity(myIntent)
+        startActivity(drawIntent)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

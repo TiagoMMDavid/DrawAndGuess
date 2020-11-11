@@ -2,8 +2,13 @@ package edu.isel.pdm.li51xd.g08.drag
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import edu.isel.pdm.li51xd.g08.drag.model.*
-import edu.isel.pdm.li51xd.g08.drag.utils.GameListener
+import edu.isel.pdm.li51xd.g08.drag.listeners.GameListener
+import edu.isel.pdm.li51xd.g08.drag.model.Drawing
+import edu.isel.pdm.li51xd.g08.drag.model.GameConfiguration
+import edu.isel.pdm.li51xd.g08.drag.model.GameState
+import edu.isel.pdm.li51xd.g08.drag.model.Point
+import edu.isel.pdm.li51xd.g08.drag.model.Vector
+import edu.isel.pdm.li51xd.g08.drag.model.Word
 
 const val GAME_STATE_KEY = "DRAG.GameState"
 
@@ -59,13 +64,13 @@ class DrawViewModel(private val savedState: SavedStateHandle) : ViewModel() {
         gameListener?.onStateChange(game.state)
     }
 
-    fun addPoint(x: Float, y: Float, initial: Boolean) {
-        val currDrawing = game.currentDrawing
+    fun addVectorToModel(x: Float, y: Float) {
+        val vectors = game.currentDrawing.vectors
+        vectors.add(Vector())
+        vectors.last.points.add(Point(x, y))
+    }
 
-        if (initial) {
-            currDrawing.vectors.add(Vector())
-        }
-
-        currDrawing.vectors.last.points.add(Point(x, y))
+    fun addPointToModel(x: Float, y: Float) {
+        game.currentDrawing.vectors.last.points.add(Point(x, y))
     }
 }

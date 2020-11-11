@@ -11,4 +11,6 @@
     <string name="roundEnding">Fim da Ronda %1$d de %2$d</string>
     <string name="finishGame">Terminar</string>
     <string name="finishRound">Terminar Ronda</string>
+    <string name="previous">Anterior</string>
+    <string name="next">Seguinte</string>
 </resources>

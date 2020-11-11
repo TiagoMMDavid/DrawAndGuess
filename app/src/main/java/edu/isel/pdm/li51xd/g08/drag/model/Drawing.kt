@@ -2,8 +2,8 @@ package edu.isel.pdm.li51xd.g08.drag.model
 
 import android.os.Parcelable
 import edu.isel.pdm.li51xd.g08.drag.model.DrawGuess.ResultType.DRAWING
-import kotlinx.android.parcel.Parcelize
 import java.util.*
+import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 data class Point(val x: Float, val y: Float) : Parcelable

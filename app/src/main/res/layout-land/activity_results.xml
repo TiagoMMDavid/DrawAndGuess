@@ -6,25 +6,16 @@
     android:layout_height="match_parent"
     tools:context=".DragResultsActivity">
 
-    <ScrollView
-        android:id="@+id/scrollView2"
+    <ProgressBar
+        android:id="@+id/indexBar"
+        style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="18dp"
-        android:layout_marginTop="18dp"
-        android:layout_marginEnd="18dp"
-        android:layout_marginBottom="18dp"
-        app:layout_constraintBottom_toTopOf="@+id/finishButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/roundEndText">
-
-        <LinearLayout
-            android:id="@+id/resultsView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" />
-    </ScrollView>
+        android:layout_height="wrap_content"
+        android:clickable="false"
+        app:layout_constraintEnd_toEndOf="@+id/drawing"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="@+id/drawing"
+        app:layout_constraintTop_toBottomOf="@+id/drawing" />
 
     <TextView
         android:id="@+id/roundEndText"
@@ -34,16 +25,70 @@
         android:text="@string/roundEnding"
         android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/previousButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <edu.isel.pdm.li51xd.g08.drag.view.DrawingView
+        android:id="@+id/drawing"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="18dp"
+        android:layout_marginBottom="32dp"
+        android:background="@color/colorCanvas"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="0.6"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/roundEndText" />
+
+    <Button
+        android:id="@+id/previousButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:text="@string/previous"
+        app:layout_constraintBottom_toTopOf="@+id/nextButton"
+        app:layout_constraintEnd_toStartOf="@+id/drawing" />
+
+    <Button
+        android:id="@+id/nextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:text="@string/next"
+        app:layout_constraintBottom_toBottomOf="@+id/drawing"
+        app:layout_constraintEnd_toStartOf="@+id/drawing" />
 
     <Button
         android:id="@+id/finishButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="18dp"
         android:text="@string/finishGame"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/scrollView2" />
+        app:layout_constraintBottom_toBottomOf="@+id/drawing"
+        app:layout_constraintEnd_toEndOf="@+id/roundEndText"
+        app:layout_constraintStart_toStartOf="@+id/roundEndText" />
+
+    <TextView
+        android:id="@+id/guessText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toBottomOf="@+id/drawing"
+        app:layout_constraintEnd_toEndOf="@+id/drawing"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/drawing"
+        app:layout_constraintTop_toTopOf="@+id/drawing" />
+
+    <ImageView
+        android:id="@+id/gameLogo"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/finishButton"
+        app:layout_constraintEnd_toEndOf="@+id/roundEndText"
+        app:layout_constraintStart_toStartOf="@+id/roundEndText"
+        app:layout_constraintTop_toBottomOf="@+id/roundEndText"
+        app:srcCompat="@drawable/appicon" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

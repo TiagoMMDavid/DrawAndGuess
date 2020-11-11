@@ -1,4 +1,4 @@
-package edu.isel.pdm.li51xd.g08.drag.utils
+package edu.isel.pdm.li51xd.g08.drag.listeners
 
 import edu.isel.pdm.li51xd.g08.drag.model.GameState
 

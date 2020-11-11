@@ -8,19 +8,24 @@ import android.graphics.Path
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import edu.isel.pdm.li51xd.g08.drag.listeners.NewPointListener
+import edu.isel.pdm.li51xd.g08.drag.listeners.NewVectorListener
+import edu.isel.pdm.li51xd.g08.drag.listeners.SizeChangeListener
 import edu.isel.pdm.li51xd.g08.drag.model.Drawing
 import edu.isel.pdm.li51xd.g08.drag.model.Point
 import edu.isel.pdm.li51xd.g08.drag.model.Vector
-import edu.isel.pdm.li51xd.g08.drag.utils.DrawingListener
 import java.util.*
 
 class DrawingView(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
     private val currPath: Path = Path()
     private val currStartPoints: LinkedList<Point> = LinkedList()
-    private var drawingListener: DrawingListener? = null
 
     private var viewHeight = 0
     private var viewWidth = 0
+
+    private var newPointListener: NewPointListener? = null
+    private var newVectorListener: NewVectorListener? = null
+    private var sizeChangeListener: SizeChangeListener? = null
 
     private companion object {
         val brush: Paint = Paint().apply {
@@ -42,10 +47,7 @@ class DrawingView(context: Context?, attrs: AttributeSet?) : View(context, attrs
     fun clearCanvas() {
         currPath.reset()
         currStartPoints.clear()
-    }
-
-    fun setOnDrawChangeListener(drawingListener: DrawingListener) {
-        this.drawingListener = drawingListener
+        invalidate()
     }
 
     private fun addVectorToPath(vector: Vector) {
@@ -65,6 +67,18 @@ class DrawingView(context: Context?, attrs: AttributeSet?) : View(context, attrs
         }
     }
 
+    fun setOnNewVectorListener(newVectorListener: NewVectorListener) {
+        this.newVectorListener = newVectorListener
+    }
+
+    fun setOnNewPointListener(newPointListener: NewPointListener) {
+        this.newPointListener = newPointListener
+    }
+
+    fun setOnSizeChangeListener(sizeChangeListener: SizeChangeListener) {
+        this.sizeChangeListener = sizeChangeListener
+    }
+
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         canvas?.drawPath(currPath, brush)
@@ -79,11 +93,11 @@ class DrawingView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                 MotionEvent.ACTION_DOWN -> {
                     currPath.moveTo(event.x, event.y)
                     currStartPoints.add(Point(event.x, event.y))
-                    drawingListener?.onNewPoint(event.x / viewWidth, event.y / viewHeight, true)
+                    newVectorListener?.onNewVector(event.x / viewWidth, event.y / viewHeight)
                 }
                 MotionEvent.ACTION_MOVE -> {
                     currPath.lineTo(event.x, event.y)
-                    drawingListener?.onNewPoint(event.x / viewWidth, event.y / viewHeight, false)
+                    newPointListener?.onNewPoint(event.x / viewWidth, event.y / viewHeight)
                 }
             }
             invalidate()
@@ -95,6 +109,6 @@ class DrawingView(context: Context?, attrs: AttributeSet?) : View(context, attrs
         super.onSizeChanged(w, h, oldw, oldh)
         viewHeight = h
         viewWidth = w
-        drawingListener?.onSizeChange()
+        sizeChangeListener?.onSizeChange()
     }
 }
