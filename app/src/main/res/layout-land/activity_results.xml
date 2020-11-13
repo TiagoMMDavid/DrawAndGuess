@@ -11,68 +11,51 @@
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
         android:clickable="false"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/drawing"
         app:layout_constraintHorizontal_bias="0.496"
-        app:layout_constraintStart_toStartOf="@+id/drawing"
-        app:layout_constraintTop_toBottomOf="@+id/drawing" />
+        app:layout_constraintStart_toStartOf="@+id/drawing" />
 
     <TextView
         android:id="@+id/roundEndText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
         android:text="@string/roundEnding"
         android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toStartOf="@+id/previousButton"
+        app:layout_constraintBottom_toBottomOf="@+id/indexBar"
+        app:layout_constraintEnd_toStartOf="@+id/drawing"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/drawing" />
 
     <edu.isel.pdm.li51xd.g08.drag.view.DrawingView
         android:id="@+id/drawing"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginEnd="18dp"
-        android:layout_marginBottom="32dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
         android:background="@color/colorCanvas"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/indexBar"
         app:layout_constraintDimensionRatio="0.6"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/roundEndText" />
-
-    <Button
-        android:id="@+id/previousButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:text="@string/previous"
-        app:layout_constraintBottom_toTopOf="@+id/nextButton"
-        app:layout_constraintEnd_toStartOf="@+id/drawing" />
-
-    <Button
-        android:id="@+id/nextButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:text="@string/next"
-        app:layout_constraintBottom_toBottomOf="@+id/drawing"
-        app:layout_constraintEnd_toStartOf="@+id/drawing" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/finishButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
         android:text="@string/finishGame"
         app:layout_constraintBottom_toBottomOf="@+id/drawing"
-        app:layout_constraintEnd_toEndOf="@+id/roundEndText"
-        app:layout_constraintStart_toStartOf="@+id/roundEndText" />
+        app:layout_constraintEnd_toStartOf="@+id/drawing" />
 
     <TextView
         android:id="@+id/guessText"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:gravity="center"
         android:textAlignment="center"
         android:textSize="30sp"
         app:layout_constraintBottom_toBottomOf="@+id/drawing"
@@ -81,14 +64,13 @@
         app:layout_constraintStart_toStartOf="@+id/drawing"
         app:layout_constraintTop_toTopOf="@+id/drawing" />
 
-    <ImageView
-        android:id="@+id/gameLogo"
+    <edu.isel.pdm.li51xd.g08.drag.utils.SwipeActionView
+        android:id="@+id/swipeZone"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/finishButton"
-        app:layout_constraintEnd_toEndOf="@+id/roundEndText"
-        app:layout_constraintStart_toStartOf="@+id/roundEndText"
-        app:layout_constraintTop_toBottomOf="@+id/roundEndText"
-        app:srcCompat="@drawable/appicon" />
+        app:layout_constraintBottom_toBottomOf="@+id/drawing"
+        app:layout_constraintEnd_toEndOf="@+id/drawing"
+        app:layout_constraintStart_toStartOf="@+id/drawing"
+        app:layout_constraintTop_toTopOf="@+id/drawing" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

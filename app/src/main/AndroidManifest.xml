@@ -8,13 +8,13 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/launcher_icon_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity android:name=".DragResultsActivity"></activity>
-        <activity android:name=".DragGameActivity" />
+        android:theme="@style/AppTheme"
+        android:name=".DragApplication">
+        <activity android:name=".DragResultsActivity"/>
+        <activity android:name=".DragGameActivity"/>
         <activity android:name=".DragLauncher">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

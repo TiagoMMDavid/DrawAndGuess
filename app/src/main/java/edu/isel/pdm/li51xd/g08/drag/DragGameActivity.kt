@@ -15,6 +15,7 @@ import edu.isel.pdm.li51xd.g08.drag.model.GameState.State.RESULTS
 import edu.isel.pdm.li51xd.g08.drag.model.Word
 import edu.isel.pdm.li51xd.g08.drag.utils.EditTextNoEnter
 
+
 class DragGameActivity : AppCompatActivity() {
     private val binding: ActivityDrawBinding by lazy { ActivityDrawBinding.inflate(layoutInflater) }
     private val viewModel: DrawViewModel by viewModels()
@@ -40,7 +41,7 @@ class DragGameActivity : AppCompatActivity() {
         binding.drawing.isEnabled = true
 
         binding.drawingWord.isEnabled = false
-        binding.drawingWord.setText((viewModel.game.drawGuesses.last() as Word).word)
+        binding.drawingWord.setText((viewModel.getLastDrawGuess() as Word).word)
 
         binding.submitButton.setOnClickListener {
             viewModel.defineDrawing()
@@ -67,14 +68,7 @@ class DragGameActivity : AppCompatActivity() {
     }
 
     private fun drawResults() {
-        viewModel.game.currRound
-        val resultIntent = Intent(this, DragResultsActivity::class.java).apply {
-            putExtra(GAME_CONFIGURATION_KEY, viewModel.config)
-            putExtra(GAME_STATE_KEY, viewModel.game)
-            //addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-        }
-        startActivity(resultIntent)
-        // TODO: Add flags to intent instead of finishing activity
+        startActivity(Intent(this, DragResultsActivity::class.java))
         finish()
     }
 
@@ -86,16 +80,22 @@ class DragGameActivity : AppCompatActivity() {
         binding.drawingWord.addTextChangedListener(EditTextNoEnter())
         binding.drawing.setOnNewVectorListener { x: Float, y: Float -> viewModel.addVectorToModel(x, y) }
         binding.drawing.setOnNewPointListener { x: Float, y: Float -> viewModel.addPointToModel(x, y) }
-        binding.drawing.setOnSizeChangeListener { binding.drawing.drawModel(viewModel.game.currentDrawing) }
+        binding.drawing.setOnSizeChangeListener { binding.drawing.drawModel(viewModel.getCurrentDrawing()) }
 
-        viewModel.setOnStateChangeListener {state ->
-            when(state) {
+        viewModel.setOnStateChangeListener { state ->
+            when (state) {
                 DEFINING -> drawDefining(toast)
                 DRAWING -> drawDrawing()
                 GUESSING -> drawGuessing(toast)
                 RESULTS -> drawResults()
+                else -> throw IllegalStateException()
             }
         }
         viewModel.startGame()
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        (application as DragApplication).repo.reset()
     }
 }

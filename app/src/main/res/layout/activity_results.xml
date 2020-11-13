@@ -33,37 +33,20 @@
         app:layout_constraintTop_toBottomOf="@+id/roundEndText" />
 
     <Button
-        android:id="@+id/previousButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/previous"
-        app:layout_constraintBottom_toBottomOf="@+id/finishButton"
-        app:layout_constraintStart_toStartOf="@+id/drawing" />
-
-    <Button
-        android:id="@+id/nextButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:text="@string/next"
-        app:layout_constraintBottom_toBottomOf="@+id/finishButton"
-        app:layout_constraintStart_toEndOf="@+id/previousButton" />
-
-    <Button
         android:id="@+id/finishButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
         android:layout_marginBottom="16dp"
         android:text="@string/finishGame"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/drawing"
-        app:layout_constraintStart_toEndOf="@+id/nextButton" />
+        app:layout_constraintStart_toStartOf="@+id/drawing" />
 
     <TextView
         android:id="@+id/guessText"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:gravity="center"
         android:textAlignment="center"
         android:textSize="30sp"
         app:layout_constraintBottom_toBottomOf="@+id/drawing"
@@ -76,11 +59,19 @@
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
         android:clickable="false"
-        app:layout_constraintBottom_toTopOf="@+id/nextButton"
+        app:layout_constraintBottom_toTopOf="@+id/finishButton"
         app:layout_constraintEnd_toEndOf="@+id/drawing"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/drawing" />
+
+    <edu.isel.pdm.li51xd.g08.drag.utils.SwipeActionView
+        android:id="@+id/swipeZone"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/indexBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/drawing" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

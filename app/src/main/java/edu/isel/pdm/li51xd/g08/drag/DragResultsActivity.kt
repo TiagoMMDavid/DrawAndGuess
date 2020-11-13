@@ -11,10 +11,10 @@ import edu.isel.pdm.li51xd.g08.drag.model.DrawGuess
 import edu.isel.pdm.li51xd.g08.drag.model.DrawGuess.ResultType.DRAWING
 import edu.isel.pdm.li51xd.g08.drag.model.DrawGuess.ResultType.WORD
 import edu.isel.pdm.li51xd.g08.drag.model.Drawing
-import edu.isel.pdm.li51xd.g08.drag.model.GameConfiguration
 import edu.isel.pdm.li51xd.g08.drag.model.GameState
+import edu.isel.pdm.li51xd.g08.drag.model.GameState.State.DEFINING
+import edu.isel.pdm.li51xd.g08.drag.model.Repository
 import edu.isel.pdm.li51xd.g08.drag.model.Word
-
 
 const val RESULT_INDEX_KEY = "DRAG.ResultIndex"
 
@@ -22,33 +22,15 @@ const val INDEX_BAR_ANIMATION_SMOOTHNESS = 100 // Can be seen as frames per inde
 const val INDEX_BAR_ANIMATION_DURATION = 250L
 
 class DragResultsActivity : AppCompatActivity() {
-    private val binding: ActivityResultsBinding by lazy { ActivityResultsBinding.inflate(
-        layoutInflater
-    ) }
-    lateinit var game: GameState
-    lateinit var config: GameConfiguration
+    private val binding: ActivityResultsBinding by lazy { ActivityResultsBinding.inflate(layoutInflater) }
+    private val repo: Repository by lazy { (application as DragApplication).repo }
 
     private var currResultIndex = 0
 
-    private fun getContextAndSavedState(extras: Bundle?, savedInstanceState: Bundle?) {
-        if (extras != null) {
-            game = extras.getParcelable(GAME_STATE_KEY)!!
-            config = extras.getParcelable(GAME_CONFIGURATION_KEY)!!
-        }
-
-        if (savedInstanceState != null)
-            currResultIndex = savedInstanceState.getInt(RESULT_INDEX_KEY)
-    }
-
     private fun startGame() {
-        val nextRound = game.currRound + 1
-        val drawIntent = Intent(this, DragGameActivity::class.java).apply {
-            putExtra(GAME_CONFIGURATION_KEY, config)
-            putExtra(GAME_STATE_KEY, GameState(currRound = nextRound))
-            //addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-        }
-        startActivity(drawIntent)
-        // TODO: Add flags to intent instead of finishing activity
+        val nextRound = repo.game.currRound + 1
+        repo.game = GameState(currRound = nextRound, state = DEFINING)
+        startActivity(Intent(this, DragGameActivity::class.java))
         finish()
     }
 
@@ -68,8 +50,8 @@ class DragResultsActivity : AppCompatActivity() {
     }
 
     private fun updateLayout() {
-        binding.previousButton.isEnabled = currResultIndex > 0
-        binding.nextButton.isEnabled = currResultIndex < game.drawGuesses.size - 1
+        binding.swipeZone.isSwipeRightEnabled = currResultIndex > 0
+        binding.swipeZone.isSwipeLeftEnabled = currResultIndex < repo.game.drawGuesses.size - 1
 
         ObjectAnimator.ofInt(binding.indexBar, "progress", currResultIndex * INDEX_BAR_ANIMATION_SMOOTHNESS).apply {
             duration = INDEX_BAR_ANIMATION_DURATION
@@ -79,13 +61,13 @@ class DragResultsActivity : AppCompatActivity() {
     }
 
     private fun setUpLayout() {
-        val currRound = game.currRound
-        val totalRounds = config.roundCount
+        val currRound = repo.game.currRound
+        val totalRounds = repo.config.roundCount
 
         if (currRound == totalRounds) {
             binding.finishButton.setText(R.string.finishGame)
             binding.finishButton.setOnClickListener {
-                // TODO: Should we finish the activity here?
+                repo.reset()
                 finish()
             }
         } else {
@@ -96,20 +78,20 @@ class DragResultsActivity : AppCompatActivity() {
         }
 
         binding.roundEndText.text = getString(R.string.roundEnding, currRound, totalRounds)
-        binding.indexBar.max = (game.drawGuesses.size - 1) * INDEX_BAR_ANIMATION_SMOOTHNESS
+        binding.indexBar.max = (repo.game.drawGuesses.size - 1) * INDEX_BAR_ANIMATION_SMOOTHNESS
 
         binding.drawing.isEnabled = false
         binding.drawing.setOnSizeChangeListener {
-            drawResult(game.drawGuesses[currResultIndex])
+            drawResult(repo.game.drawGuesses[currResultIndex])
         }
         updateLayout()
 
-        binding.previousButton.setOnClickListener {
-            drawResult(game.drawGuesses[--currResultIndex])
+        binding.swipeZone.setOnSwipeRight {
+            drawResult(repo.game.drawGuesses[--currResultIndex])
             updateLayout()
         }
-        binding.nextButton.setOnClickListener {
-            drawResult(game.drawGuesses[++currResultIndex])
+        binding.swipeZone.setOnSwipeLeft {
+            drawResult(repo.game.drawGuesses[++currResultIndex])
             updateLayout()
         }
     }
@@ -118,7 +100,9 @@ class DragResultsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        getContextAndSavedState(intent.extras, savedInstanceState)
+        if (savedInstanceState != null)
+            currResultIndex = savedInstanceState.getInt(RESULT_INDEX_KEY)
+
         setUpLayout()
     }
 

@@ -2,7 +2,7 @@ package edu.isel.pdm.li51xd.g08.drag.model
 
 import android.os.Parcelable
 import edu.isel.pdm.li51xd.g08.drag.model.DrawGuess.ResultType.DRAWING
-import java.util.*
+import java.util.LinkedList
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
