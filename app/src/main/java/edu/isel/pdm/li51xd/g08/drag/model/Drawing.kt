@@ -13,7 +13,6 @@ data class Vector(val points: ArrayList<Point> = ArrayList()) : Parcelable
 
 @Parcelize
 class Drawing(val vectors: LinkedList<Vector> = LinkedList()) : DrawGuess {
-
     override fun getResultType(): DrawGuess.ResultType {
         return DRAWING
     }

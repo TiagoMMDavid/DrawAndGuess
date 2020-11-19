@@ -41,7 +41,6 @@ class DrawViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         gameListener?.onStateChange(repo.game.state)
-
     }
 
     fun defineGuess(word: String) {
