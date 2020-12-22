@@ -12,4 +12,8 @@
     <string name="finishRound">Finish Round</string>
     <string name="previous">Previous</string>
     <string name="next">Next</string>
+    <string name="offlineMode">Play offline</string>
+    <string name="onlineMode">Play online</string>
+    <string name="createGame">Create game</string>
+    <string name="joinGame">Join game</string>
 </resources>

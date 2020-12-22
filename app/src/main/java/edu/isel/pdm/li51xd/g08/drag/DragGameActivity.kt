@@ -12,6 +12,7 @@ import edu.isel.pdm.li51xd.g08.drag.model.GameState.State.DEFINING
 import edu.isel.pdm.li51xd.g08.drag.model.GameState.State.DRAWING
 import edu.isel.pdm.li51xd.g08.drag.model.GameState.State.GUESSING
 import edu.isel.pdm.li51xd.g08.drag.model.GameState.State.RESULTS
+import edu.isel.pdm.li51xd.g08.drag.model.Repository
 import edu.isel.pdm.li51xd.g08.drag.model.Word
 import edu.isel.pdm.li51xd.g08.drag.utils.EditTextNoEnter
 

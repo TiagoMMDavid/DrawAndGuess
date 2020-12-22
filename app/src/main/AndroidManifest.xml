@@ -3,21 +3,23 @@
     package="edu.isel.pdm.li51xd.g08.drag">
 
     <application
+        android:name=".DragApplication"
         android:allowBackup="true"
         android:icon="@mipmap/launcher_icon"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/launcher_icon_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        android:name=".DragApplication">
-        <activity android:name=".DragResultsActivity"/>
-        <activity android:name=".DragGameActivity"/>
-        <activity android:name=".DragLauncher">
+        android:theme="@style/AppTheme">
+        <activity android:name=".DragSelectActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".DragResultsActivity" />
+        <activity android:name=".DragGameActivity" />
+        <activity android:name=".DragConfigureActivity" />
     </application>
 
 </manifest>

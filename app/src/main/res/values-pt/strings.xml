@@ -13,4 +13,8 @@
     <string name="finishRound">Terminar Ronda</string>
     <string name="previous">Anterior</string>
     <string name="next">Seguinte</string>
+    <string name="offlineMode">Jogo local</string>
+    <string name="onlineMode">Jogo distribuído</string>
+    <string name="createGame">Criar jogo</string>
+    <string name="joinGame">Juntar a um jogo</string>
 </resources>

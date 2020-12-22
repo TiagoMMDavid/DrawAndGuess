@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.animation.DecelerateInterpolator
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.MutableLiveData
 import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityResultsBinding
 import edu.isel.pdm.li51xd.g08.drag.model.DrawGuess
 import edu.isel.pdm.li51xd.g08.drag.model.DrawGuess.ResultType.DRAWING
@@ -16,10 +17,10 @@ import edu.isel.pdm.li51xd.g08.drag.model.GameState.State.DEFINING
 import edu.isel.pdm.li51xd.g08.drag.model.Repository
 import edu.isel.pdm.li51xd.g08.drag.model.Word
 
-const val RESULT_INDEX_KEY = "DRAG.ResultIndex"
+private const val RESULT_INDEX_KEY = "DRAG.ResultIndex"
 
-const val INDEX_BAR_ANIMATION_SMOOTHNESS = 100 // Can be seen as frames per index change
-const val INDEX_BAR_ANIMATION_DURATION = 250L
+private const val INDEX_BAR_ANIMATION_SMOOTHNESS = 100 // Can be seen as frames per index change
+private const val INDEX_BAR_ANIMATION_DURATION = 250L
 
 class DragResultsActivity : AppCompatActivity() {
     private val binding: ActivityResultsBinding by lazy { ActivityResultsBinding.inflate(layoutInflater) }
