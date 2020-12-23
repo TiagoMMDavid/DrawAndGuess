@@ -4,75 +4,37 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".DragConfigureActivity">
-
-    <TextView
-        android:id="@+id/playerCountText"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="18dp"
-        android:layout_marginEnd="24dp"
-        android:gravity="center"
-        android:text="@string/playerNumber"
-        android:textAlignment="viewEnd"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="@+id/playerCount"
-        app:layout_constraintEnd_toStartOf="@+id/playerCount"
-        app:layout_constraintStart_toEndOf="@+id/gameLogo"
-        app:layout_constraintTop_toTopOf="@+id/playerCount" />
+    tools:context=".DragLauncherActivity">
 
     <ImageView
-        android:id="@+id/gameLogo"
-        android:layout_width="302dp"
+        android:id="@+id/imageView"
+        android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginEnd="128dp"
         android:background="@color/colorPrimaryDark"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/offlineButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
-        app:srcCompat="@drawable/appicon"
-        tools:src="@tools:sample/avatars" />
+        app:srcCompat="@drawable/appicon" />
 
-    <NumberPicker
-        android:id="@+id/playerCount"
-        android:layout_width="61dp"
-        android:layout_height="110dp"
+    <Button
+        android:id="@+id/offlineButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:layout_marginEnd="80dp"
+        android:layout_marginEnd="72dp"
+        android:text="@string/offlineMode"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <NumberPicker
-        android:id="@+id/roundCount"
-        android:layout_width="61dp"
-        android:layout_height="110dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="80dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/playerCount" />
-
-    <TextView
-        android:id="@+id/roundCountText"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginEnd="24dp"
-        android:gravity="center"
-        android:text="@string/roundNumber"
-        android:textAlignment="viewEnd"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="@+id/roundCount"
-        app:layout_constraintEnd_toStartOf="@+id/roundCount"
-        app:layout_constraintStart_toStartOf="@+id/playerCountText"
-        app:layout_constraintTop_toTopOf="@+id/roundCount" />
-
     <Button
-        android:id="@+id/startGameButton"
+        android:id="@+id/onlineButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:text="@string/start"
+        android:layout_marginEnd="76dp"
+        android:layout_marginBottom="32dp"
+        android:text="@string/onlineMode"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/gameLogo" />
-
+        app:layout_constraintEnd_toEndOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

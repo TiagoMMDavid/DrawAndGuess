@@ -1,18 +1,19 @@
 package edu.isel.pdm.li51xd.g08.drag
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import edu.isel.pdm.li51xd.g08.drag.listeners.GameListener
-import edu.isel.pdm.li51xd.g08.drag.model.DrawGuess
-import edu.isel.pdm.li51xd.g08.drag.model.Drawing
-import edu.isel.pdm.li51xd.g08.drag.model.GameState
-import edu.isel.pdm.li51xd.g08.drag.model.Point
-import edu.isel.pdm.li51xd.g08.drag.model.Repository
-import edu.isel.pdm.li51xd.g08.drag.model.Vector
-import edu.isel.pdm.li51xd.g08.drag.model.Word
+import edu.isel.pdm.li51xd.g08.drag.model.*
 
-class DrawViewModel(application: Application) : AndroidViewModel(application) {
-    private val repo: Repository = getApplication<DragApplication>().repo
+class DrawViewModel(private val savedState: SavedStateHandle) : ViewModel() {
+
+    val game: GameState by lazy {
+        savedState[GAME_STATE_KEY] ?: GameState()
+    }
+
+    val config: GameConfiguration by lazy {
+        savedState.get<GameConfiguration>(GAME_CONFIGURATION_KEY) ?: throw IllegalArgumentException()
+    }
 
     private var gameListener: GameListener? = null
 
@@ -21,56 +22,56 @@ class DrawViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun startGame() {
-        gameListener?.onStateChange(repo.game.state)
+        savedState[GAME_STATE_KEY] = game
+        gameListener?.onStateChange(game.state)
     }
 
     fun defineWord(word: String) {
-        repo.game.drawGuesses.add(Word(word))
-
-        repo.game.state = GameState.State.DRAWING
-        gameListener?.onStateChange(repo.game.state)
+        game.drawGuesses.add(Word(word))
+        game.state = GameState.State.DRAWING
+        gameListener?.onStateChange(game.state)
     }
 
     fun defineDrawing() {
-        repo.game.drawGuesses.add(repo.game.currentDrawing)
+        game.drawGuesses.add(game.currentDrawing)
 
-        if (repo.game.drawGuesses.size == repo.config.playerCount) {
-            repo.game.state = GameState.State.RESULTS
+        if (game.drawGuesses.size == config.playerCount) {
+            game.state = GameState.State.RESULTS
         } else {
-            repo.game.state = GameState.State.GUESSING
+            game.state = GameState.State.GUESSING
         }
 
-        gameListener?.onStateChange(repo.game.state)
+        gameListener?.onStateChange(game.state)
     }
 
     fun defineGuess(word: String) {
-        repo.game.drawGuesses.add(Word(word))
-        repo.game.currentDrawing = Drawing()
+        game.drawGuesses.add(Word(word))
+        game.currentDrawing = Drawing()
 
-        if (repo.game.drawGuesses.size == repo.config.playerCount) {
-            repo.game.state = GameState.State.RESULTS
+        if (game.drawGuesses.size == config.playerCount) {
+            game.state = GameState.State.RESULTS
         } else {
-            repo.game.state = GameState.State.DRAWING
+            game.state = GameState.State.DRAWING
         }
 
-        gameListener?.onStateChange(repo.game.state)
+        gameListener?.onStateChange(game.state)
     }
 
     fun addVectorToModel(x: Float, y: Float) {
-        val vectors = repo.game.currentDrawing.vectors
+        val vectors = game.currentDrawing.vectors
         vectors.add(Vector())
         vectors.last.points.add(Point(x, y))
     }
 
     fun addPointToModel(x: Float, y: Float) {
-        repo.game.currentDrawing.vectors.last.points.add(Point(x, y))
+        game.currentDrawing.vectors.last.points.add(Point(x, y))
     }
 
     fun getCurrentDrawing() : Drawing {
-        return repo.game.currentDrawing
+        return game.currentDrawing
     }
 
     fun getLastDrawGuess() : DrawGuess {
-        return repo.game.drawGuesses.last()
+        return game.drawGuesses.last()
     }
 }

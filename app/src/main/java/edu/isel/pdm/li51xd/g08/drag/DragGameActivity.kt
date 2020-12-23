@@ -8,14 +8,11 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityDrawBinding
-import edu.isel.pdm.li51xd.g08.drag.model.GameState.State.DEFINING
-import edu.isel.pdm.li51xd.g08.drag.model.GameState.State.DRAWING
-import edu.isel.pdm.li51xd.g08.drag.model.GameState.State.GUESSING
-import edu.isel.pdm.li51xd.g08.drag.model.GameState.State.RESULTS
-import edu.isel.pdm.li51xd.g08.drag.model.Repository
+import edu.isel.pdm.li51xd.g08.drag.model.GAME_CONFIGURATION_KEY
+import edu.isel.pdm.li51xd.g08.drag.model.GAME_STATE_KEY
+import edu.isel.pdm.li51xd.g08.drag.model.GameState.State.*
 import edu.isel.pdm.li51xd.g08.drag.model.Word
 import edu.isel.pdm.li51xd.g08.drag.utils.EditTextNoEnter
-
 
 class DragGameActivity : AppCompatActivity() {
     private val binding: ActivityDrawBinding by lazy { ActivityDrawBinding.inflate(layoutInflater) }
@@ -69,7 +66,10 @@ class DragGameActivity : AppCompatActivity() {
     }
 
     private fun drawResults() {
-        startActivity(Intent(this, DragResultsActivity::class.java))
+        startActivity(Intent(this, DragResultsActivity::class.java).apply {
+            putExtra(GAME_CONFIGURATION_KEY, viewModel.config)
+            putExtra(GAME_STATE_KEY, viewModel.game)
+        })
         finish()
     }
 
@@ -89,14 +89,8 @@ class DragGameActivity : AppCompatActivity() {
                 DRAWING -> drawDrawing()
                 GUESSING -> drawGuessing(toast)
                 RESULTS -> drawResults()
-                else -> throw IllegalStateException()
             }
         }
         viewModel.startGame()
-    }
-
-    override fun onBackPressed() {
-        super.onBackPressed()
-        (application as DragApplication).repo.reset()
     }
 }

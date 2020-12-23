@@ -14,7 +14,7 @@ import edu.isel.pdm.li51xd.g08.drag.listeners.SizeChangeListener
 import edu.isel.pdm.li51xd.g08.drag.model.Drawing
 import edu.isel.pdm.li51xd.g08.drag.model.Point
 import edu.isel.pdm.li51xd.g08.drag.model.Vector
-import java.util.LinkedList
+import java.util.*
 
 class DrawingView(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
     private val currPath: Path = Path()
