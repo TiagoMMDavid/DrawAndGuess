@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".DragResultsActivity">
+    tools:context=".game.DragResultsActivity">
 
     <TextView
         android:id="@+id/roundEndText"
@@ -18,7 +18,7 @@
         app:layout_constraintStart_toStartOf="@+id/drawing"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <edu.isel.pdm.li51xd.g08.drag.view.DrawingView
+    <edu.isel.pdm.li51xd.g08.drag.game.view.DrawingView
         android:id="@+id/drawing"
         android:layout_width="0dp"
         android:layout_height="0dp"

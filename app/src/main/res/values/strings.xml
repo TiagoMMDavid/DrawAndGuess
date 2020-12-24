@@ -16,4 +16,5 @@
     <string name="onlineMode">Play online</string>
     <string name="createGame">Create game</string>
     <string name="joinGame">Join game</string>
+    <string name="errorWordnik">Failed to get words</string>
 </resources>

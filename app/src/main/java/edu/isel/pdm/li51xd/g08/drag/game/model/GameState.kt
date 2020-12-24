@@ -1,10 +1,10 @@
-package edu.isel.pdm.li51xd.g08.drag.model
+package edu.isel.pdm.li51xd.g08.drag.game.model
 
 import android.os.Parcelable
-import edu.isel.pdm.li51xd.g08.drag.model.GameConfiguration.Mode.OFFLINE
-import edu.isel.pdm.li51xd.g08.drag.model.GameState.State.DEFINING
-import kotlinx.android.parcel.Parcelize
+import edu.isel.pdm.li51xd.g08.drag.game.model.GameConfiguration.Mode.OFFLINE
+import edu.isel.pdm.li51xd.g08.drag.game.model.GameState.State.DRAWING
 import java.util.*
+import kotlinx.android.parcel.Parcelize
 
 const val GAME_MODE_KEY = "DRAG.GameMode"
 const val GAME_CONFIGURATION_KEY = "DRAG.GameConfiguration"
@@ -34,7 +34,7 @@ data class GameConfiguration(val playerCount: Int = MIN_PLAYERS,
 data class GameState(var currentDrawing: Drawing = Drawing(),
                      val drawGuesses: LinkedList<DrawGuess> = LinkedList(),
                      var currRound: Int = 1,
-                     var state: State = DEFINING) : Parcelable {
+                     var state: State = DRAWING) : Parcelable {
 
     /**
      * DEFINING - Defining word
@@ -42,5 +42,5 @@ data class GameState(var currentDrawing: Drawing = Drawing(),
      * GUESSING - Guessing a drawing
      * RESULTS - Shows every drawing and guess for a round
      */
-    enum class State { DEFINING, DRAWING, GUESSING, RESULTS }
+    enum class State { DRAWING, GUESSING, RESULTS }
 }

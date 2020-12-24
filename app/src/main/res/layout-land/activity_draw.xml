@@ -5,10 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_constraintDimensionRatio="0.7"
-    tools:context=".DragGameActivity">
+    tools:context=".game.DragGameActivity">
 
 
-    <edu.isel.pdm.li51xd.g08.drag.view.DrawingView
+    <edu.isel.pdm.li51xd.g08.drag.game.view.DrawingView
         android:id="@+id/drawing"
         android:layout_width="0dp"
         android:layout_height="0dp"

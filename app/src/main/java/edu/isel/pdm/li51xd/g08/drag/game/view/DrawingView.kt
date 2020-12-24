@@ -1,4 +1,4 @@
-package edu.isel.pdm.li51xd.g08.drag.view
+package edu.isel.pdm.li51xd.g08.drag.game.view
 
 import android.content.Context
 import android.graphics.Canvas
@@ -8,12 +8,12 @@ import android.graphics.Path
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import edu.isel.pdm.li51xd.g08.drag.game.model.Drawing
+import edu.isel.pdm.li51xd.g08.drag.game.model.Point
+import edu.isel.pdm.li51xd.g08.drag.game.model.Vector
 import edu.isel.pdm.li51xd.g08.drag.listeners.NewPointListener
 import edu.isel.pdm.li51xd.g08.drag.listeners.NewVectorListener
 import edu.isel.pdm.li51xd.g08.drag.listeners.SizeChangeListener
-import edu.isel.pdm.li51xd.g08.drag.model.Drawing
-import edu.isel.pdm.li51xd.g08.drag.model.Point
-import edu.isel.pdm.li51xd.g08.drag.model.Vector
 import java.util.*
 
 class DrawingView(context: Context?, attrs: AttributeSet?) : View(context, attrs) {

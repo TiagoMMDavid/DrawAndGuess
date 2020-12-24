@@ -17,4 +17,5 @@
     <string name="onlineMode">Jogo distribuído</string>
     <string name="createGame">Criar jogo</string>
     <string name="joinGame">Juntar a um jogo</string>
+    <string name="errorWordnik">Erro na busca de palavras</string>
 </resources>

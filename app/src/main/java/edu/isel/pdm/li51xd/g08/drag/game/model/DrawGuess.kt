@@ -1,4 +1,4 @@
-package edu.isel.pdm.li51xd.g08.drag.model
+package edu.isel.pdm.li51xd.g08.drag.game.model
 
 import android.os.Parcelable
 

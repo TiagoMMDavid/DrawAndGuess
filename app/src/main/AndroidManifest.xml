@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="edu.isel.pdm.li51xd.g08.drag">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <application
         android:name=".DragApplication"
         android:allowBackup="true"
@@ -10,6 +13,7 @@
         android:roundIcon="@mipmap/launcher_icon_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".DragListGamesActivity" />
         <activity android:name=".DragLauncherActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -17,8 +21,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".DragResultsActivity" />
-        <activity android:name=".DragGameActivity" />
+        <activity android:name=".game.DragResultsActivity" />
+        <activity android:name=".game.DragGameActivity" />
         <activity android:name=".DragConfigureActivity" />
     </application>
 
