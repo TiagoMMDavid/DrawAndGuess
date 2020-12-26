@@ -2,10 +2,13 @@ package edu.isel.pdm.li51xd.g08.drag
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityLauncherBinding
 import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_MODE_KEY
 import edu.isel.pdm.li51xd.g08.drag.game.model.GameConfiguration
+import edu.isel.pdm.li51xd.g08.drag.lobbies.list.DragListGamesActivity
+import edu.isel.pdm.li51xd.g08.drag.repo.DragRepository
 
 class DragLauncherActivity : AppCompatActivity() {
     private val binding: ActivityLauncherBinding by lazy { ActivityLauncherBinding.inflate(layoutInflater) }
@@ -18,7 +21,9 @@ class DragLauncherActivity : AppCompatActivity() {
         }
 
         binding.onlineButton.setOnClickListener {
-            TODO("Start List lobbies activity")
+            startActivity(Intent(this, DragListGamesActivity::class.java).apply {
+                putExtra(GAME_MODE_KEY, GameConfiguration.Mode.getMode(true).name)
+            })
         }
     }
 
