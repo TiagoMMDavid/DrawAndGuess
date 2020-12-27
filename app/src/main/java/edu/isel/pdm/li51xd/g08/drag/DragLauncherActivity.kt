@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityLauncherBinding
 import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_MODE_KEY
 import edu.isel.pdm.li51xd.g08.drag.game.model.GameConfiguration
+import edu.isel.pdm.li51xd.g08.drag.game.model.Mode
 import edu.isel.pdm.li51xd.g08.drag.lobbies.list.DragListGamesActivity
 import edu.isel.pdm.li51xd.g08.drag.repo.DragRepository
 
@@ -16,14 +17,12 @@ class DragLauncherActivity : AppCompatActivity() {
     private fun setUpLayout() {
         binding.offlineButton.setOnClickListener {
             startActivity(Intent(this, DragConfigureActivity::class.java).apply {
-                putExtra(GAME_MODE_KEY, GameConfiguration.Mode.getMode(false).name)
+                putExtra(GAME_MODE_KEY, Mode.OFFLINE.name)
             })
         }
 
         binding.onlineButton.setOnClickListener {
-            startActivity(Intent(this, DragListGamesActivity::class.java).apply {
-                putExtra(GAME_MODE_KEY, GameConfiguration.Mode.getMode(true).name)
-            })
+            startActivity(Intent(this, DragListGamesActivity::class.java))
         }
     }
 

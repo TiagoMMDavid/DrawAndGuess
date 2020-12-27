@@ -1,13 +1,14 @@
 package edu.isel.pdm.li51xd.g08.drag.game.model
 
 import android.os.Parcelable
-import edu.isel.pdm.li51xd.g08.drag.game.model.GameConfiguration.Mode.OFFLINE
 import edu.isel.pdm.li51xd.g08.drag.game.model.GameState.State.DRAWING
 import java.util.*
 import kotlinx.android.parcel.Parcelize
 
 const val GAME_MODE_KEY = "DRAG.GameMode"
+const val PLAYER_NAME_KEY = "DRAG.PlayerName"
 const val GAME_CONFIGURATION_KEY = "DRAG.GameConfiguration"
+const val LOBBY_INFO_KEY = "DRAG.LobbyInfo"
 const val GAME_STATE_KEY = "DRAG.GameState"
 
 const val MIN_PLAYERS = 5
@@ -18,16 +19,11 @@ const val MAX_ROUNDS = 10
 
 @Parcelize
 data class GameConfiguration(val playerCount: Int = MIN_PLAYERS,
-                             val roundCount: Int = MIN_ROUNDS,
-                             val mode: Mode = OFFLINE) : Parcelable {
-    enum class Mode {
-        ONLINE,
-        OFFLINE;
+                             val roundCount: Int = MIN_ROUNDS) : Parcelable
 
-        companion object {
-            fun getMode(isOnline: Boolean) = if (isOnline) ONLINE else OFFLINE
-        }
-    }
+enum class Mode {
+    ONLINE,
+    OFFLINE
 }
 
 @Parcelize

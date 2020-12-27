@@ -14,7 +14,10 @@
         android:roundIcon="@mipmap/launcher_icon_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".lobbies.list.DragListGamesActivity" />
+        <activity android:name=".lobbies.DragLobbyActivity"></activity>
+        <activity
+            android:name=".lobbies.list.DragListGamesActivity"
+            android:windowSoftInputMode="adjustPan" />
         <activity android:name=".DragLauncherActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

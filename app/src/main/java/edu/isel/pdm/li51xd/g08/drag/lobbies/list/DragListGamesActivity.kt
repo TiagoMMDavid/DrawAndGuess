@@ -1,17 +1,20 @@
 package edu.isel.pdm.li51xd.g08.drag.lobbies.list
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import edu.isel.pdm.li51xd.g08.drag.DragApplication
+import edu.isel.pdm.li51xd.g08.drag.DragConfigureActivity
 import edu.isel.pdm.li51xd.g08.drag.R
-import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityDrawBinding
 import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityListBinding
-import edu.isel.pdm.li51xd.g08.drag.game.model.GameConfiguration
+import edu.isel.pdm.li51xd.g08.drag.game.model.*
+import edu.isel.pdm.li51xd.g08.drag.lobbies.DragLobbyActivity
 import edu.isel.pdm.li51xd.g08.drag.lobbies.list.view.GamesListAdapter
+import edu.isel.pdm.li51xd.g08.drag.repo.WORDS_KEY
+import edu.isel.pdm.li51xd.g08.drag.utils.EditTextNoEnter
 
 class DragListGamesActivity : AppCompatActivity() {
     private val binding: ActivityListBinding by lazy { ActivityListBinding.inflate(layoutInflater) }
@@ -24,30 +27,51 @@ class DragListGamesActivity : AppCompatActivity() {
 
         binding.lobbiesList.setHasFixedSize(true)
         binding.lobbiesList.layoutManager = LinearLayoutManager(this)
+        binding.playerName.addTextChangedListener(EditTextNoEnter())
 
-        // Get view model instance and add its contents to the recycler view
-        viewModel.lobbies.observe(this) {
-            binding.lobbiesList.adapter = GamesListAdapter(it) {
-                Toast.makeText(this, "Select lobby ${it.name}", Toast.LENGTH_LONG).show()
-            }
-            binding.refreshLayout.isRefreshing = false
-        }
-
-        // Setup ui event handlers
         binding.refreshLayout.setOnRefreshListener {
             binding.refreshLayout.isRefreshing = true
             viewModel.fetchLobbies()
         }
 
-        // Setup ui event handlers
         binding.createGameButton.setOnClickListener {
-            (application as DragApplication).repo.createLobby("Example", "Player", GameConfiguration(),
-                {
-                    Toast.makeText(this, "Created ${it.name}", Toast.LENGTH_LONG).show()
-                },
-                {
-                    Toast.makeText(this, "Error creating lobby", Toast.LENGTH_LONG).show()
+            if (binding.playerName.text.isBlank()) {
+                Toast.makeText(this, R.string.errorNoPlayerName, Toast.LENGTH_LONG).show()
+            } else {
+                startActivity(Intent(this, DragConfigureActivity::class.java).apply {
+                    putExtra(GAME_MODE_KEY, Mode.ONLINE.name)
+                    putExtra(PLAYER_NAME_KEY, binding.playerName.text.toString())
                 })
+            }
         }
+
+        viewModel.lobbies.observe(this) {
+            binding.lobbiesList.adapter = GamesListAdapter(it) { lobby ->
+                if (binding.playerName.text.isBlank()) {
+                    Toast.makeText(this, R.string.errorNoPlayerName, Toast.LENGTH_LONG).show()
+                } else if (binding.createGameButton.isEnabled) {
+                    binding.createGameButton.isEnabled = false
+                    viewModel.tryJoinLobby(lobby.id, binding.playerName.text.toString(), lobby.gameConfig.roundCount)
+                }
+            }
+            binding.refreshLayout.isRefreshing = false
+        }
+
+        viewModel.joinedLobby.observe(this) { lobby ->
+            Log.v("bom dia", "dentro do activity observe")
+            if (lobby != null) {
+                startActivity(Intent(this, DragLobbyActivity::class.java).apply {
+                    putExtra(LOBBY_INFO_KEY, lobby)
+                    putStringArrayListExtra(WORDS_KEY, viewModel.words)
+                })
+            }
+            binding.createGameButton.isEnabled = true
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        binding.refreshLayout.isRefreshing = true
+        viewModel.fetchLobbies()
     }
 }

@@ -17,7 +17,13 @@
     <string name="onlineMode">Jogo distribuído</string>
     <string name="createGame">Criar jogo</string>
     <string name="joinGame">Juntar a um jogo</string>
-    <string name="errorWordnik">Erro na busca de palavras</string>
+    <string name="errorWordnik">Erro na busca de palavras!</string>
     <string name="lobbyInfo">[Jogadores: %1$d/%2$d] [Rondas: %3$d]</string>
-    <string name="errorLobbies">Erro na busca de salas</string>
+    <string name="errorGetLobbies">Erro na busca de salas!</string>
+    <string name="errorCreateLobby">Erro na criação da sala!</string>
+    <string name="errorJoinLobby">Erro ao juntar-se à sala!</string>
+    <string name="lobbyPlayerNameHint">Insira o seu nome…</string>
+    <string name="errorNoPlayerName">Por favor insira o seu nome!</string>
+    <string name="lobbyNameHint">Insira o nome da sala…</string>
+    <string name="errorNoLobbyName">Por favor insira o nome da sala!</string>
 </resources>

@@ -8,6 +8,6 @@ import kotlinx.android.parcel.Parcelize
 data class LobbyInfo(
     val id: String,
     val name: String,
-    val playerNames: List<String>,
+    val playerNames: MutableList<String>,
     val gameConfig: GameConfiguration
 ) : Parcelable
