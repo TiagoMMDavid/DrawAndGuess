@@ -26,4 +26,6 @@
     <string name="errorNoPlayerName">Por favor insira o seu nome!</string>
     <string name="lobbyNameHint">Insira o nome da sala…</string>
     <string name="errorNoLobbyName">Por favor insira o nome da sala!</string>
+    <string name="lobbyWaiting">À espera de jogadores…</string>
+    <string name="lobbyList">Lista de Salas</string>
 </resources>

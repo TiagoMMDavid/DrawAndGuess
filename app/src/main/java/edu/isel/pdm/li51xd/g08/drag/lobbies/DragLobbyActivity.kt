@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import edu.isel.pdm.li51xd.g08.drag.R.string
 import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityLobbyBinding
 import edu.isel.pdm.li51xd.g08.drag.game.model.LOBBY_INFO_KEY
 import edu.isel.pdm.li51xd.g08.drag.game.model.PLAYER_KEY
@@ -38,19 +39,27 @@ class DragLobbyActivity : AppCompatActivity() {
         }
     }
 
+    private fun updateLobby(lobby: LobbyInfo) {
+        binding.playerNames.adapter = PlayerListAdapter(lobby.players, player)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
         binding.lobbyName.text = lobbyInfo.name
-        binding.lobbyInfo.text = "Waiting for players"
+        binding.lobbyInfo.text = getString(string.lobbyWaiting)
         binding.playerNames.setHasFixedSize(true)
         binding.playerNames.layoutManager = LinearLayoutManager(this)
 
         viewModel.lobbyInfo.observe(this) {
-            binding.playerNames.adapter = PlayerListAdapter(it.players)
+            updateLobby(it)
         }
-        binding.playerNames.adapter = PlayerListAdapter(lobbyInfo.players)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        updateLobby(lobbyInfo)
     }
 
     override fun onBackPressed() {

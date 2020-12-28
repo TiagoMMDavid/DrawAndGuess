@@ -51,16 +51,6 @@ private fun DocumentSnapshot.toLobbyInfo(mapper: ObjectMapper) =
         toGameConfiguration(data!![LOBBY_GAME_CONFIG] as Map<String, Any>)
     )
 
-private fun getUniquePlayerName(players: List<String>, playerName: String) : String {
-    var tryCount = 1
-    var name = playerName
-    while(players.contains(name)) {
-        ++tryCount
-        name = "$playerName ($tryCount)"
-    }
-    return name
-}
-
 class DragRepository(private val queue: RequestQueue, private val mapper: ObjectMapper) {
 
     fun fetchRandomWords(limit: Int) : LiveData<Result<List<String>>> {
@@ -120,8 +110,7 @@ class DragRepository(private val queue: RequestQueue, private val mapper: Object
                 val playerCount = lobby.gameConfig.playerCount
 
                 if (lobby.players.size < playerCount) {
-                    val uniquePlayerName = getUniquePlayerName(lobby.players.map { p -> p.name }, playerName)
-                    val player = Player(uniquePlayerName, mutableListOf())
+                    val player = Player(playerName, mutableListOf())
 
                     if (lobby.players.size == playerCount - 1) {
                         // Lobby is full

@@ -25,4 +25,6 @@
     <string name="errorNoPlayerName">Please insert your name!</string>
     <string name="lobbyNameHint">Insert the lobby name…</string>
     <string name="errorNoLobbyName">Please insert the lobby name!</string>
+    <string name="lobbyWaiting">Waiting for players…</string>
+    <string name="lobbyList">Lobby List</string>
 </resources>
