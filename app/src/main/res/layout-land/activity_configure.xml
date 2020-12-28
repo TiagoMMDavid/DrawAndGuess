@@ -69,11 +69,13 @@
         android:id="@+id/relativeLayout"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="16dp"
         android:gravity="center"
-        app:layout_constraintBottom_toTopOf="@+id/startGameButton"
+        app:layout_constraintBottom_toBottomOf="@+id/startGameButton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/gameLogo"
-        app:layout_constraintTop_toBottomOf="@+id/roundCount">
+        app:layout_constraintStart_toEndOf="@+id/startGameButton"
+        app:layout_constraintTop_toTopOf="@+id/startGameButton">
 
         <EditText
             android:id="@+id/lobbyName"
@@ -93,10 +95,10 @@
         android:id="@+id/startGameButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
         android:layout_marginBottom="16dp"
         android:text="@string/start"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/gameLogo" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -15,7 +15,7 @@ class GameViewHolder(private val view: ViewGroup) : RecyclerView.ViewHolder(view
     fun bindTo(lobby: LobbyInfo, itemSelectedListener: (LobbyInfo) -> Unit) {
         val config = lobby.gameConfig
         lobbyNameView.text = lobby.name
-        lobbyInfoView.text = itemView.context.getString(R.string.lobbyInfo, lobby.playerNames.size, config.playerCount, config.roundCount)
+        lobbyInfoView.text = itemView.context.getString(R.string.lobbyInfo, lobby.players.size, config.playerCount, config.roundCount)
 
         view.setOnClickListener {
             itemSelectedListener(lobby)

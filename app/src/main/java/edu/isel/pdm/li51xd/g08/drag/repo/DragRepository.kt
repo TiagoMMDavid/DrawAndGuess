@@ -5,22 +5,28 @@ import androidx.lifecycle.MutableLiveData
 import com.android.volley.RequestQueue
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import edu.isel.pdm.li51xd.g08.drag.BuildConfig
 import edu.isel.pdm.li51xd.g08.drag.game.model.GameConfiguration
+import edu.isel.pdm.li51xd.g08.drag.game.model.Player
+import edu.isel.pdm.li51xd.g08.drag.game.model.PlayerDto
 import edu.isel.pdm.li51xd.g08.drag.lobbies.LobbyInfo
-import java.lang.IllegalStateException
 
 private const val LOBBIES_COLLECTION = "lobbies"
 private const val GAMES_COLLECTION = "games"
 
 private const val LOBBY_NAME = "name"
-private const val LOBBY_PLAYER_NAMES = "playerNames"
+private const val LOBBY_PLAYERS = "players"
 private const val LOBBY_GAME_CONFIG = "gameConfig"
 
 private const val GAME_CONFIG_PLAYER_COUNT = "playerCount"
 private const val GAME_CONFIG_ROUND_COUNT = "roundCount"
+
+private const val GAME_PLAYERS = "players"
+private const val GAME_DRAW_GUESSES = "drawGuesses"
 
 private fun toGameConfiguration(map: Map<String, Any>) =
     GameConfiguration(
@@ -28,13 +34,32 @@ private fun toGameConfiguration(map: Map<String, Any>) =
         (map[GAME_CONFIG_ROUND_COUNT] as Long).toInt()
     )
 
-private fun DocumentSnapshot.toLobbyInfo() =
+private fun toPlayers(list: List<String>, mapper: ObjectMapper) : MutableList<Player> {
+    val mutableList = mutableListOf<Player>()
+    list.forEach {
+        val playerDto = mapper.readValue(it, PlayerDto::class.java)
+        mutableList.add(playerDto.toPlayer())
+    }
+    return mutableList
+}
+
+private fun DocumentSnapshot.toLobbyInfo(mapper: ObjectMapper) =
     LobbyInfo(
         id,
         data!![LOBBY_NAME] as String,
-        data!![LOBBY_PLAYER_NAMES] as MutableList<String>,
+        toPlayers(data!![LOBBY_PLAYERS] as List<String>, mapper),
         toGameConfiguration(data!![LOBBY_GAME_CONFIG] as Map<String, Any>)
     )
+
+private fun getUniquePlayerName(players: List<String>, playerName: String) : String {
+    var tryCount = 1
+    var name = playerName
+    while(players.contains(name)) {
+        ++tryCount
+        name = "$playerName ($tryCount)"
+    }
+    return name
+}
 
 class DragRepository(private val queue: RequestQueue, private val mapper: ObjectMapper) {
 
@@ -59,7 +84,7 @@ class DragRepository(private val queue: RequestQueue, private val mapper: Object
         Firebase.firestore.collection(LOBBIES_COLLECTION)
             .get()
             .addOnSuccessListener { result ->
-                onSuccess(result.map { it.toLobbyInfo() }.toList())
+                onSuccess(result.map { it.toLobbyInfo(mapper) }.toList())
             }
             .addOnFailureListener {
                 onError(it)
@@ -67,37 +92,59 @@ class DragRepository(private val queue: RequestQueue, private val mapper: Object
     }
 
     fun createLobby(lobbyName: String, playerName: String, gameConfiguration: GameConfiguration,
-                    onSuccess: (LobbyInfo) -> Unit,
+                    onSuccess: (LobbyInfo, Player) -> Unit,
                     onError: (Exception) -> Unit) {
 
-        val playerNames = mutableListOf(playerName)
+        val player = Player(playerName, mutableListOf())
+        val players = mutableListOf(player)
+        val playersBlob = players.map { mapper.writeValueAsString(it.toDto()) }
         Firebase.firestore.collection(LOBBIES_COLLECTION)
-            .add(hashMapOf(LOBBY_NAME to lobbyName, LOBBY_PLAYER_NAMES to playerNames, LOBBY_GAME_CONFIG to gameConfiguration))
-            .addOnSuccessListener { onSuccess(LobbyInfo(it.id, lobbyName, playerNames, gameConfiguration)) }
+            .add(hashMapOf(LOBBY_NAME to lobbyName, LOBBY_PLAYERS to playersBlob, LOBBY_GAME_CONFIG to gameConfiguration))
+            .addOnSuccessListener {
+                onSuccess(LobbyInfo(it.id, lobbyName, players, gameConfiguration), player) }
             .addOnFailureListener { onError(it) }
     }
 
     fun tryJoinLobby(lobbyId: String, playerName: String,
-                     onSuccess: (LobbyInfo) -> Unit,
+                     onSuccess: (LobbyInfo, Player) -> Unit,
                      onError: (Exception) -> Unit) {
 
         val document = Firebase.firestore
             .collection(LOBBIES_COLLECTION)
             .document(lobbyId)
 
-        // TODO: Deal with concurrency
         document
             .get()
             .addOnSuccessListener {
-                val lobby = it.toLobbyInfo()
-                if (lobby.playerNames.size < lobby.gameConfig.playerCount) {
-                    lobby.playerNames.add(playerName)
-                    document
-                        .update(LOBBY_PLAYER_NAMES, lobby.playerNames)
-                        .addOnSuccessListener { onSuccess(lobby) }
-                        .addOnFailureListener { err -> onError(err) }
-                } else {
-                    onError(IllegalStateException("Lobby is already full"))
+                val lobby = it.toLobbyInfo(mapper)
+                val playerCount = lobby.gameConfig.playerCount
+
+                if (lobby.players.size < playerCount) {
+                    val uniquePlayerName = getUniquePlayerName(lobby.players.map { p -> p.name }, playerName)
+                    val player = Player(uniquePlayerName, mutableListOf())
+
+                    if (lobby.players.size == playerCount - 1) {
+                        // Lobby is full
+                        lobby.players.add(player)
+                        document.delete()
+                            .addOnSuccessListener {
+                                Firebase.firestore
+                                    .collection(GAMES_COLLECTION)
+                                    .document(lobbyId)
+                                    .set(hashMapOf(
+                                        GAME_PLAYERS to lobby.players.map { player ->  mapper.writeValueAsString(player.toDto()) },
+                                        GAME_DRAW_GUESSES to listOf()
+                                    ))
+                                    .addOnSuccessListener { onSuccess(lobby, player) }
+                            }
+                            .addOnFailureListener { onError(IllegalStateException("Lobby is already full")) }
+                    } else {
+                        // Lobby isn't full yet
+                        document
+                            .update(LOBBY_PLAYERS, FieldValue.arrayUnion(mapper.writeValueAsString(player.toDto())))
+                            .addOnSuccessListener { onSuccess(lobby, player) }
+                            .addOnFailureListener { err -> onError(err) }
+                    }
                 }
             }
             .addOnFailureListener { onError(it) }
@@ -112,5 +159,30 @@ class DragRepository(private val queue: RequestQueue, private val mapper: Object
             .delete()
             .addOnSuccessListener { onSuccess() }
             .addOnFailureListener(onError)
+    }
+
+    fun subscribeToLobby(lobbyId: String,
+        onSubscriptionError: (Exception) -> Unit,
+        onStateChange: (LobbyInfo) -> Unit) : ListenerRegistration {
+        return Firebase.firestore
+            .collection(LOBBIES_COLLECTION)
+            .document(lobbyId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    onSubscriptionError(error)
+                    return@addSnapshotListener
+                }
+
+                if (snapshot?.exists() == true) {
+                    onStateChange(snapshot.toLobbyInfo(mapper))
+                }
+            }
+    }
+
+    fun exitLobby(lobbyId: String, player: Player) {
+        Firebase.firestore
+            .collection(LOBBIES_COLLECTION)
+            .document(lobbyId)
+            .update(LOBBY_PLAYERS, FieldValue.arrayRemove(mapper.writeValueAsString(player.toDto())))
     }
 }

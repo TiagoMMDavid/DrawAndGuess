@@ -2,7 +2,6 @@ package edu.isel.pdm.li51xd.g08.drag.lobbies.list
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -10,7 +9,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import edu.isel.pdm.li51xd.g08.drag.DragConfigureActivity
 import edu.isel.pdm.li51xd.g08.drag.R
 import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityListBinding
-import edu.isel.pdm.li51xd.g08.drag.game.model.*
+import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_MODE_KEY
+import edu.isel.pdm.li51xd.g08.drag.game.model.LOBBY_INFO_KEY
+import edu.isel.pdm.li51xd.g08.drag.game.model.Mode
+import edu.isel.pdm.li51xd.g08.drag.game.model.PLAYER_KEY
+import edu.isel.pdm.li51xd.g08.drag.game.model.PLAYER_NAME_KEY
 import edu.isel.pdm.li51xd.g08.drag.lobbies.DragLobbyActivity
 import edu.isel.pdm.li51xd.g08.drag.lobbies.list.view.GamesListAdapter
 import edu.isel.pdm.li51xd.g08.drag.repo.WORDS_KEY
@@ -51,6 +54,7 @@ class DragListGamesActivity : AppCompatActivity() {
                     Toast.makeText(this, R.string.errorNoPlayerName, Toast.LENGTH_LONG).show()
                 } else if (binding.createGameButton.isEnabled) {
                     binding.createGameButton.isEnabled = false
+                    binding.refreshLayout.isEnabled = false
                     viewModel.tryJoinLobby(lobby.id, binding.playerName.text.toString(), lobby.gameConfig.roundCount)
                 }
             }
@@ -58,14 +62,15 @@ class DragListGamesActivity : AppCompatActivity() {
         }
 
         viewModel.joinedLobby.observe(this) { lobby ->
-            Log.v("bom dia", "dentro do activity observe")
             if (lobby != null) {
                 startActivity(Intent(this, DragLobbyActivity::class.java).apply {
                     putExtra(LOBBY_INFO_KEY, lobby)
                     putStringArrayListExtra(WORDS_KEY, viewModel.words)
+                    putExtra(PLAYER_KEY, viewModel.player)
                 })
             }
             binding.createGameButton.isEnabled = true
+            binding.refreshLayout.isEnabled = true
         }
     }
 

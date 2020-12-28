@@ -7,6 +7,7 @@ import kotlinx.android.parcel.Parcelize
 
 const val GAME_MODE_KEY = "DRAG.GameMode"
 const val PLAYER_NAME_KEY = "DRAG.PlayerName"
+const val PLAYER_KEY = "DRAG.Player"
 const val GAME_CONFIGURATION_KEY = "DRAG.GameConfiguration"
 const val LOBBY_INFO_KEY = "DRAG.LobbyInfo"
 const val GAME_STATE_KEY = "DRAG.GameState"

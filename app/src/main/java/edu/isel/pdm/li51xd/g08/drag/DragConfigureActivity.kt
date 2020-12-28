@@ -7,7 +7,17 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityConfigureBinding
 import edu.isel.pdm.li51xd.g08.drag.game.DragGameActivity
-import edu.isel.pdm.li51xd.g08.drag.game.model.*
+import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_CONFIGURATION_KEY
+import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_MODE_KEY
+import edu.isel.pdm.li51xd.g08.drag.game.model.GameConfiguration
+import edu.isel.pdm.li51xd.g08.drag.game.model.LOBBY_INFO_KEY
+import edu.isel.pdm.li51xd.g08.drag.game.model.MAX_PLAYERS
+import edu.isel.pdm.li51xd.g08.drag.game.model.MAX_ROUNDS
+import edu.isel.pdm.li51xd.g08.drag.game.model.MIN_PLAYERS
+import edu.isel.pdm.li51xd.g08.drag.game.model.MIN_ROUNDS
+import edu.isel.pdm.li51xd.g08.drag.game.model.Mode
+import edu.isel.pdm.li51xd.g08.drag.game.model.PLAYER_KEY
+import edu.isel.pdm.li51xd.g08.drag.game.model.PLAYER_NAME_KEY
 import edu.isel.pdm.li51xd.g08.drag.lobbies.DragLobbyActivity
 import edu.isel.pdm.li51xd.g08.drag.repo.WORDS_KEY
 import edu.isel.pdm.li51xd.g08.drag.utils.EditTextNoEnter
@@ -74,10 +84,11 @@ class DragConfigureActivity : AppCompatActivity() {
             }
             Mode.ONLINE -> {
                 (application as DragApplication).repo.createLobby(binding.lobbyName.text.toString(), playerName, config,
-                    {
+                    { lobby, player ->
                         startActivity(Intent(this, DragLobbyActivity::class.java).apply {
-                            putExtra(LOBBY_INFO_KEY, it)
+                            putExtra(LOBBY_INFO_KEY, lobby)
                             putStringArrayListExtra(WORDS_KEY, words)
+                            putExtra(PLAYER_KEY, player)
                         })
                         finish()
                     },
