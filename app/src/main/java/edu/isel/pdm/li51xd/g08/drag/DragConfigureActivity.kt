@@ -2,7 +2,9 @@ package edu.isel.pdm.li51xd.g08.drag
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.view.View.INVISIBLE
+import android.view.View.VISIBLE
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityConfigureBinding
@@ -68,6 +70,7 @@ class DragConfigureActivity : AppCompatActivity() {
                     }
                 }
                 binding.startGameButton.isEnabled = false
+                binding.loadingLobby.visibility = VISIBLE
             }
         }
     }

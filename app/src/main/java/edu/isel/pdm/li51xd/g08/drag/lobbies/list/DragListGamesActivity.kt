@@ -2,6 +2,9 @@ package edu.isel.pdm.li51xd.g08.drag.lobbies.list
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -55,6 +58,7 @@ class DragListGamesActivity : AppCompatActivity() {
                 } else if (binding.createGameButton.isEnabled) {
                     binding.createGameButton.isEnabled = false
                     binding.refreshLayout.isEnabled = false
+                    binding.loadingLobby.visibility = VISIBLE
                     viewModel.tryJoinLobby(lobby.id, binding.playerName.text.toString(), lobby.gameConfig.roundCount)
                 }
             }
@@ -71,6 +75,7 @@ class DragListGamesActivity : AppCompatActivity() {
             }
             binding.createGameButton.isEnabled = true
             binding.refreshLayout.isEnabled = true
+            binding.loadingLobby.visibility = GONE
         }
     }
 

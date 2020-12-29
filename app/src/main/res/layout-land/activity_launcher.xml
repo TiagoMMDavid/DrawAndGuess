@@ -32,7 +32,7 @@
         android:id="@+id/onlineButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="76dp"
+        android:layout_marginEnd="72dp"
         android:layout_marginBottom="32dp"
         android:text="@string/onlineMode"
         app:layout_constraintBottom_toBottomOf="parent"
