@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import edu.isel.pdm.li51xd.g08.drag.R
-import edu.isel.pdm.li51xd.g08.drag.game.model.Player
+import edu.isel.pdm.li51xd.g08.drag.game.remote.Player
 
 class PlayersViewHolder(view: ViewGroup) : RecyclerView.ViewHolder(view) {
 
@@ -20,8 +20,8 @@ class PlayersViewHolder(view: ViewGroup) : RecyclerView.ViewHolder(view) {
 }
 
 class PlayerListAdapter(
-    private val contents: List<Player>,
-    private val player: Player) :
+        private val contents: List<Player>,
+        private val player: Player) :
     RecyclerView.Adapter<PlayersViewHolder>() {
 
     override fun onBindViewHolder(holder: PlayersViewHolder, position: Int) {

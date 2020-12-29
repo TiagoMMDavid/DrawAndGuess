@@ -8,12 +8,12 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.firestoreSettings
 import com.google.firebase.ktx.Firebase
 import edu.isel.pdm.li51xd.g08.drag.BuildConfig
+import edu.isel.pdm.li51xd.g08.drag.game.model.DrawGuess
 import edu.isel.pdm.li51xd.g08.drag.game.model.GameConfiguration
-import edu.isel.pdm.li51xd.g08.drag.game.model.Player
-import edu.isel.pdm.li51xd.g08.drag.game.model.PlayerDto
-import edu.isel.pdm.li51xd.g08.drag.lobbies.LobbyInfo
+import edu.isel.pdm.li51xd.g08.drag.game.remote.*
 
 private const val LOBBIES_COLLECTION = "lobbies"
 private const val GAMES_COLLECTION = "games"
@@ -43,6 +43,15 @@ private fun toPlayers(list: List<String>, mapper: ObjectMapper) : MutableList<Pl
     return mutableList
 }
 
+private fun toPlayerDrawGuesses(list: List<String>, mapper: ObjectMapper) : MutableList<PlayerDrawGuess> {
+    val mutableList = mutableListOf<PlayerDrawGuess>()
+    list.forEach {
+        val drawGuessDto = mapper.readValue(it, PlayerDrawGuessDto::class.java)
+        mutableList.add(drawGuessDto.toPlayerDrawGuess(mapper))
+    }
+    return mutableList
+}
+
 private fun DocumentSnapshot.toLobbyInfo(mapper: ObjectMapper) =
     LobbyInfo(
         id,
@@ -51,7 +60,22 @@ private fun DocumentSnapshot.toLobbyInfo(mapper: ObjectMapper) =
         toGameConfiguration(data!![LOBBY_GAME_CONFIG] as Map<String, Any>)
     )
 
+private fun DocumentSnapshot.toGameInfo(mapper: ObjectMapper) =
+    GameInfo(
+        id,
+        toPlayerDrawGuesses(data!![GAME_DRAW_GUESSES] as List<String>, mapper),
+        toPlayers(data!![LOBBY_PLAYERS] as List<String>, mapper)
+    )
+
 class DragRepository(private val queue: RequestQueue, private val mapper: ObjectMapper) {
+
+    // Disable offline cache of data
+    init {
+        val settings = firestoreSettings {
+            isPersistenceEnabled = false
+        }
+        Firebase.firestore.firestoreSettings = settings
+    }
 
     fun fetchRandomWords(limit: Int) : LiveData<Result<List<String>>> {
         val result = MutableLiveData<Result<List<String>>>()
@@ -99,26 +123,25 @@ class DragRepository(private val queue: RequestQueue, private val mapper: Object
                      onSuccess: (LobbyInfo, Player) -> Unit,
                      onError: (Exception) -> Unit) {
 
-        val document = Firebase.firestore
-            .collection(LOBBIES_COLLECTION)
+        val document = Firebase.firestore.collection(LOBBIES_COLLECTION)
             .document(lobbyId)
 
-        document
-            .get()
-            .addOnSuccessListener {
+        document.get().addOnSuccessListener {
+                if (!it.exists()) {
+                    onError(IllegalArgumentException())
+                    return@addOnSuccessListener
+                }
+
                 val lobby = it.toLobbyInfo(mapper)
                 val playerCount = lobby.gameConfig.playerCount
-
                 if (lobby.players.size < playerCount) {
                     val player = Player(playerName, mutableListOf())
 
                     if (lobby.players.size == playerCount - 1) {
                         // Lobby is full
                         lobby.players.add(player)
-                        document.delete()
-                            .addOnSuccessListener {
-                                Firebase.firestore
-                                    .collection(GAMES_COLLECTION)
+                        document.delete().addOnSuccessListener {
+                                Firebase.firestore.collection(GAMES_COLLECTION)
                                     .document(lobbyId)
                                     .set(hashMapOf(
                                         GAME_PLAYERS to lobby.players.map { player ->  mapper.writeValueAsString(player.toDto()) },
@@ -139,15 +162,21 @@ class DragRepository(private val queue: RequestQueue, private val mapper: Object
             .addOnFailureListener { onError(it) }
     }
 
-    fun deleteLobby(lobbyId: String,
-                    onSuccess: () -> Unit,
-                    onError: (Exception) -> Unit) {
-        Firebase.firestore
-            .collection(LOBBIES_COLLECTION)
-            .document(lobbyId)
-            .delete()
-            .addOnSuccessListener { onSuccess() }
-            .addOnFailureListener(onError)
+    fun exitLobby(lobbyId: String, player: Player) {
+        val document = Firebase.firestore
+                .collection(LOBBIES_COLLECTION)
+                .document(lobbyId)
+        document
+                .get()
+                .addOnSuccessListener {
+                    val lobby = it.toLobbyInfo(mapper)
+                    if (lobby.players.size == 1) {
+                        document.delete()
+                    } else {
+                        document
+                                .update(LOBBY_PLAYERS, FieldValue.arrayRemove(mapper.writeValueAsString(player.toDto())))
+                    }
+                }
     }
 
     fun subscribeToLobby(lobbyId: String,
@@ -161,17 +190,57 @@ class DragRepository(private val queue: RequestQueue, private val mapper: Object
                     onSubscriptionError(error)
                     return@addSnapshotListener
                 }
-
                 if (snapshot?.exists() == true) {
                     onStateChange(snapshot.toLobbyInfo(mapper))
                 }
             }
     }
 
-    fun exitLobby(lobbyId: String, player: Player) {
-        Firebase.firestore
-            .collection(LOBBIES_COLLECTION)
-            .document(lobbyId)
-            .update(LOBBY_PLAYERS, FieldValue.arrayRemove(mapper.writeValueAsString(player.toDto())))
+    fun subscribeToGame(gameId: String,
+                         onSubscriptionError: (Exception) -> Unit,
+                         onStateChange: (GameInfo) -> Unit) : ListenerRegistration {
+        return Firebase.firestore
+                .collection(GAMES_COLLECTION)
+                .document(gameId)
+                .addSnapshotListener { snapshot, error ->
+                    if (error != null) {
+                        onSubscriptionError(error)
+                        return@addSnapshotListener
+                    }
+                    if (snapshot?.exists() == true) {
+                        onStateChange(snapshot.toGameInfo(mapper))
+                    }
+                }
+    }
+
+    fun subscribeToGame(gameId: String, playerId: String,
+                        onSubscriptionError: (Exception) -> Unit,
+                        onStateChange: (DrawGuess) -> Unit) : ListenerRegistration {
+        val doc = Firebase.firestore
+                .collection(GAMES_COLLECTION)
+                .document(gameId)
+        return doc
+                .addSnapshotListener { snapshot, error ->
+                    if (error != null) {
+                        onSubscriptionError(error)
+                        return@addSnapshotListener
+                    }
+                    if (snapshot?.exists() == true) {
+                        val gameInfo = snapshot.toGameInfo(mapper)
+                        gameInfo.drawGuesses.forEach loop@{
+                            if (it.receiverId == playerId) {
+                                val drawGuess = it.drawGuess
+                                doc.update(GAME_DRAW_GUESSES, FieldValue.arrayRemove(it.toDto(mapper)))
+                                    .addOnSuccessListener {
+                                        onStateChange(drawGuess)
+                                    }
+                                    .addOnFailureListener {
+                                        onSubscriptionError(IllegalArgumentException())
+                                    }
+                                return@loop
+                            }
+                        }
+                    }
+                }
     }
 }

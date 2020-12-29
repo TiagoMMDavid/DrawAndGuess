@@ -9,8 +9,8 @@ import androidx.appcompat.app.AppCompatActivity
 import edu.isel.pdm.li51xd.g08.drag.R.string
 import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityResultsBinding
 import edu.isel.pdm.li51xd.g08.drag.game.model.DrawGuess
-import edu.isel.pdm.li51xd.g08.drag.game.model.DrawGuess.ResultType.DRAWING
-import edu.isel.pdm.li51xd.g08.drag.game.model.DrawGuess.ResultType.WORD
+import edu.isel.pdm.li51xd.g08.drag.game.model.DrawGuess.DrawGuessType.DRAWING
+import edu.isel.pdm.li51xd.g08.drag.game.model.DrawGuess.DrawGuessType.WORD
 import edu.isel.pdm.li51xd.g08.drag.game.model.Drawing
 import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_CONFIGURATION_KEY
 import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_STATE_KEY
@@ -48,7 +48,7 @@ class DragResultsActivity : AppCompatActivity() {
     }
 
     private fun drawResult(drawGuess: DrawGuess) {
-        when(drawGuess.getResultType()) {
+        when(drawGuess.getType()) {
             DRAWING -> {
                 binding.drawing.drawModel(drawGuess as Drawing)
                 binding.drawing.visibility = View.VISIBLE

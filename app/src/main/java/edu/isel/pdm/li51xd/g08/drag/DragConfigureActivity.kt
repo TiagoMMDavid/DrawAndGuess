@@ -3,8 +3,7 @@ package edu.isel.pdm.li51xd.g08.drag
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.view.View.INVISIBLE
-import android.view.View.VISIBLE
+import android.view.View.*
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityConfigureBinding
@@ -67,6 +66,7 @@ class DragConfigureActivity : AppCompatActivity() {
                     } else {
                         Toast.makeText(this, R.string.errorWordnik, Toast.LENGTH_LONG).show()
                         binding.startGameButton.isEnabled = true
+                        binding.loadingLobby.visibility = GONE
                     }
                 }
                 binding.startGameButton.isEnabled = false
@@ -81,6 +81,7 @@ class DragConfigureActivity : AppCompatActivity() {
             Mode.OFFLINE -> {
                 startActivity(Intent(this, DragGameActivity::class.java).apply {
                     putExtra(GAME_CONFIGURATION_KEY, config)
+                    putExtra(GAME_MODE_KEY, Mode.OFFLINE.name)
                     putStringArrayListExtra(WORDS_KEY, words)
                 })
                 finish()
@@ -97,6 +98,7 @@ class DragConfigureActivity : AppCompatActivity() {
                     },
                     {
                         Toast.makeText(this, R.string.errorCreateLobby, Toast.LENGTH_LONG).show()
+                        binding.loadingLobby.visibility = GONE
                     })
             }
         }

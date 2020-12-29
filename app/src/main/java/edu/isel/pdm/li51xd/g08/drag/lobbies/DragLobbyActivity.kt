@@ -1,6 +1,7 @@
 package edu.isel.pdm.li51xd.g08.drag.lobbies
 
 import android.os.Bundle
+import android.os.CountDownTimer
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
@@ -10,9 +11,13 @@ import edu.isel.pdm.li51xd.g08.drag.R.string
 import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityLobbyBinding
 import edu.isel.pdm.li51xd.g08.drag.game.model.LOBBY_INFO_KEY
 import edu.isel.pdm.li51xd.g08.drag.game.model.PLAYER_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.Player
+import edu.isel.pdm.li51xd.g08.drag.game.remote.LobbyInfo
+import edu.isel.pdm.li51xd.g08.drag.game.remote.Player
 import edu.isel.pdm.li51xd.g08.drag.lobbies.view.PlayerListAdapter
 import edu.isel.pdm.li51xd.g08.drag.repo.WORDS_KEY
+
+private const val COUNTDOWN_TIME = 5000L
+private const val COUNTDOWN_INTERVAL = 1000L
 
 class DragLobbyActivity : AppCompatActivity() {
 
@@ -39,8 +44,8 @@ class DragLobbyActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateLobby(lobby: LobbyInfo) {
-        binding.playerNames.adapter = PlayerListAdapter(lobby.players, player)
+    private fun updateLobby(players: List<Player>?) {
+        binding.playerNames.adapter = PlayerListAdapter(players ?: listOf(), player)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,13 +58,31 @@ class DragLobbyActivity : AppCompatActivity() {
         binding.playerNames.layoutManager = LinearLayoutManager(this)
 
         viewModel.lobbyInfo.observe(this) {
-            updateLobby(it)
+            if (it == null) {
+                binding.lobbyName.text = getString(string.error)
+                binding.lobbyInfo.text = getString(string.errorJoinLobby)
+            }
+            updateLobby(it.players)
+        }
+
+        viewModel.gameInfo.observe(this) {
+            updateLobby(it.players)
+            val timer = object: CountDownTimer(COUNTDOWN_TIME, COUNTDOWN_INTERVAL) {
+                override fun onTick(millisUntilFinished: Long) {
+                    binding.lobbyInfo.text = "${millisUntilFinished / COUNTDOWN_INTERVAL}"
+                }
+
+                override fun onFinish() {
+                    TODO()
+                }
+            }
+            timer.start()
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        updateLobby(lobbyInfo)
+    override fun onResume() {
+        super.onResume()
+        updateLobby(lobbyInfo.players)
     }
 
     override fun onBackPressed() {

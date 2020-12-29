@@ -7,8 +7,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import edu.isel.pdm.li51xd.g08.drag.DragApplication
 import edu.isel.pdm.li51xd.g08.drag.R
-import edu.isel.pdm.li51xd.g08.drag.game.model.Player
-import edu.isel.pdm.li51xd.g08.drag.lobbies.LobbyInfo
+import edu.isel.pdm.li51xd.g08.drag.game.remote.Player
+import edu.isel.pdm.li51xd.g08.drag.game.remote.LobbyInfo
 
 class DragListGamesViewModel(app: Application) : AndroidViewModel(app) {
 

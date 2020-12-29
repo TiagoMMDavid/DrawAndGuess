@@ -19,7 +19,6 @@
     <string name="errorWordnik">Failed to get words!</string>
     <string name="errorGetLobbies">Failed to get lobbies!</string>
     <string name="errorCreateLobby">Failed to create lobby!</string>
-    <string name="errorJoinLobby">Failed to join lobby!</string>
     <string name="lobbyInfo">[Players: %1$d/%2$d] [Rounds: %3$d]</string>
     <string name="lobbyPlayerNameHint">Insert your name…</string>
     <string name="errorNoPlayerName">Please insert your name!</string>
@@ -27,4 +26,6 @@
     <string name="errorNoLobbyName">Please insert the lobby name!</string>
     <string name="lobbyWaiting">Waiting for players…</string>
     <string name="lobbyList">Lobby List</string>
+    <string name="error">Error!</string>
+    <string name="errorJoinLobby">Failed to join lobby! Please try again.</string>
 </resources>
