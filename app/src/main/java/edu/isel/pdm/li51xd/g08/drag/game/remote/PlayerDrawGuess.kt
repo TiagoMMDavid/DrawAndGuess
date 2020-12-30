@@ -9,53 +9,36 @@ import edu.isel.pdm.li51xd.g08.drag.game.model.Drawing
 import edu.isel.pdm.li51xd.g08.drag.game.model.Vector
 import edu.isel.pdm.li51xd.g08.drag.game.model.Word
 import kotlinx.android.parcel.Parcelize
+import java.lang.IllegalArgumentException
 import java.util.*
 
 @Parcelize
-data class PlayerDrawGuess (val receiverId: String, val drawGuess: DrawGuess) : Parcelable {
+data class PlayerDrawGuess(val bookOwnerId: String, val receiverId: String, val drawGuess: DrawGuess) : Parcelable {
     fun toDto(mapper: ObjectMapper): PlayerDrawGuessDto {
         when(val type = drawGuess.getType()) {
             DRAWING -> {
                 val drawing = drawGuess as Drawing
-                return PlayerDrawGuessDto(
-                        receiverId,
-                        type.name,
-                        null,
-                        drawing.vectors.map { mapper.writeValueAsString(it) }
-                )
+                return PlayerDrawGuessDto(bookOwnerId, receiverId, type.name,
+                        null, drawing.vectors.map { mapper.writeValueAsString(it) })
             }
             WORD -> {
                 val word = drawGuess as Word
-                return PlayerDrawGuessDto(
-                        receiverId,
-                        type.name,
-                        word.word,
-                        null
-                )
+                return PlayerDrawGuessDto(bookOwnerId, receiverId, type.name,
+                        word.word, null)
             }
         }
     }
 }
 
-data class PlayerDrawGuessDto(val receiverId: String, val type: String, val word: String?, val drawing: List<String>?) {
+data class PlayerDrawGuessDto(val bookOwnerId: String, val receiverId: String, val type: String, val word: String?, val drawing: List<String>?) {
     fun toPlayerDrawGuess(mapper: ObjectMapper): PlayerDrawGuess {
-        when(val type = DrawGuessType.valueOf(this.type)) {
+        when(DrawGuessType.valueOf(this.type)) {
             DRAWING -> {
                 val vectors = LinkedList<Vector>()
-                drawing!!.forEach {
-                    vectors.add(mapper.readValue(it, Vector::class.java))
-                }
-                return PlayerDrawGuess(
-                        receiverId,
-                        Drawing(vectors)
-                )
+                drawing!!.forEach { vectors.add(mapper.readValue(it, Vector::class.java)) }
+                return PlayerDrawGuess(bookOwnerId, receiverId, Drawing(vectors))
             }
-            WORD -> {
-                return PlayerDrawGuess(
-                        receiverId,
-                        Word(word!!)
-                )
-            }
+            WORD -> return PlayerDrawGuess(bookOwnerId, receiverId, Word(word!!))
         }
     }
 }

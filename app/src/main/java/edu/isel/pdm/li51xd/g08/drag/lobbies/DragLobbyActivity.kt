@@ -1,5 +1,6 @@
 package edu.isel.pdm.li51xd.g08.drag.lobbies
 
+import android.content.Intent
 import android.os.Bundle
 import android.os.CountDownTimer
 import androidx.activity.viewModels
@@ -7,10 +8,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import edu.isel.pdm.li51xd.g08.drag.DragConfigureActivity
 import edu.isel.pdm.li51xd.g08.drag.R.string
 import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityLobbyBinding
-import edu.isel.pdm.li51xd.g08.drag.game.model.LOBBY_INFO_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.PLAYER_KEY
+import edu.isel.pdm.li51xd.g08.drag.game.DragGameActivity
+import edu.isel.pdm.li51xd.g08.drag.game.model.*
 import edu.isel.pdm.li51xd.g08.drag.game.remote.LobbyInfo
 import edu.isel.pdm.li51xd.g08.drag.game.remote.Player
 import edu.isel.pdm.li51xd.g08.drag.lobbies.view.PlayerListAdapter
@@ -48,6 +50,19 @@ class DragLobbyActivity : AppCompatActivity() {
         binding.playerNames.adapter = PlayerListAdapter(players ?: listOf(), player)
     }
 
+    private fun startGame() {
+        val lobby = viewModel.lobbyInfo.value!!
+        startActivity(Intent(this, DragGameActivity::class.java).apply {
+            putExtra(GAME_CONFIGURATION_KEY, lobby.gameConfig)
+            putExtra(GAME_ID_KEY, lobby.id)
+            putExtra(GAME_MODE_KEY, Mode.ONLINE.name)
+
+            putExtra(PLAYER_KEY, player)
+            putStringArrayListExtra(WORDS_KEY, words)
+        })
+        finish()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -73,7 +88,7 @@ class DragLobbyActivity : AppCompatActivity() {
                 }
 
                 override fun onFinish() {
-                    TODO()
+                    startGame()
                 }
             }
             timer.start()
