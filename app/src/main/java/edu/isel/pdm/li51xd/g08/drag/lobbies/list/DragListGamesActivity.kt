@@ -2,7 +2,6 @@ package edu.isel.pdm.li51xd.g08.drag.lobbies.list
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.widget.Toast

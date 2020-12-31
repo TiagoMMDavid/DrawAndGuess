@@ -2,19 +2,23 @@ package edu.isel.pdm.li51xd.g08.drag.game
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View.VISIBLE
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import edu.isel.pdm.li51xd.g08.drag.R.string
 import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityDrawBinding
-import edu.isel.pdm.li51xd.g08.drag.game.model.*
-import edu.isel.pdm.li51xd.g08.drag.game.model.GameState.State
-import edu.isel.pdm.li51xd.g08.drag.game.model.GameState.State.*
+import edu.isel.pdm.li51xd.g08.drag.game.model.DRAWGUESS_TIME
+import edu.isel.pdm.li51xd.g08.drag.game.model.DrawGuess
+import edu.isel.pdm.li51xd.g08.drag.game.model.Drawing
+import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_CONFIGURATION_KEY
+import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_STATE_KEY
+import edu.isel.pdm.li51xd.g08.drag.game.model.GameState.State.DEFINING
+import edu.isel.pdm.li51xd.g08.drag.game.model.GameState.State.DRAWING
+import edu.isel.pdm.li51xd.g08.drag.game.model.GameState.State.GUESSING
+import edu.isel.pdm.li51xd.g08.drag.game.model.GameState.State.RESULTS
+import edu.isel.pdm.li51xd.g08.drag.game.model.Word
 import edu.isel.pdm.li51xd.g08.drag.repo.WORDS_KEY
 import edu.isel.pdm.li51xd.g08.drag.utils.EditTextNoEnter
-import edu.isel.pdm.li51xd.g08.drag.utils.runDelayed
-import java.lang.IllegalStateException
 
 class DragGameActivity : AppCompatActivity() {
     private val binding: ActivityDrawBinding by lazy { ActivityDrawBinding.inflate(layoutInflater) }
@@ -72,9 +76,9 @@ class DragGameActivity : AppCompatActivity() {
     private fun updateActivity(drawGuess: DrawGuess?) {
         when (viewModel.game.state) {
             DEFINING -> viewModel.startGame()
+            RESULTS -> drawResults()
             DRAWING -> drawDrawing(drawGuess as Word)
             GUESSING -> drawGuessing(drawGuess as Drawing)
-            RESULTS -> drawResults()
         }
     }
 

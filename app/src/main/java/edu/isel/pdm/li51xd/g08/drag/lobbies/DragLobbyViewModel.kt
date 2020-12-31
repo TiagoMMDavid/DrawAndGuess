@@ -19,7 +19,9 @@ class DragLobbyViewModel(private val lobby: LobbyInfo, app: Application) : Andro
     private val gameSubscription = getApplication<DragApplication>().repo.subscribeToGame(
         lobby.id,
         onSubscriptionError = { (gameInfo as MutableLiveData<GameInfo>).value = null },
-        onStateChange = { (gameInfo as MutableLiveData<GameInfo>).value = it }
+        onStateChange = {
+            (gameInfo as MutableLiveData<GameInfo>).value = it
+        }
     )
 
     private val app: DragApplication by lazy { getApplication<DragApplication>()}
@@ -27,8 +29,7 @@ class DragLobbyViewModel(private val lobby: LobbyInfo, app: Application) : Andro
     val lobbyInfo: LiveData<LobbyInfo> = MutableLiveData(lobby)
     val gameInfo: LiveData<GameInfo> = MutableLiveData()
 
-    override fun onCleared() {
-        super.onCleared()
+    fun clearSubscriptions() {
         lobbySubscription.remove()
         gameSubscription.remove()
     }
