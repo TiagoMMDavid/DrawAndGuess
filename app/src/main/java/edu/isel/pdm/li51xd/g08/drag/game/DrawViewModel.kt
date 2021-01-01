@@ -7,22 +7,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import com.google.firebase.firestore.ListenerRegistration
 import edu.isel.pdm.li51xd.g08.drag.DragApplication
-import edu.isel.pdm.li51xd.g08.drag.game.model.DrawGuess
-import edu.isel.pdm.li51xd.g08.drag.game.model.Drawing
-import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_CONFIGURATION_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_ID_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_MODE_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_STATE_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.GameConfiguration
-import edu.isel.pdm.li51xd.g08.drag.game.model.GameState
-import edu.isel.pdm.li51xd.g08.drag.game.model.Mode
-import edu.isel.pdm.li51xd.g08.drag.game.model.Mode.OFFLINE
-import edu.isel.pdm.li51xd.g08.drag.game.model.Mode.ONLINE
-import edu.isel.pdm.li51xd.g08.drag.game.model.Mode.valueOf
-import edu.isel.pdm.li51xd.g08.drag.game.model.PLAYER_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.Point
-import edu.isel.pdm.li51xd.g08.drag.game.model.Vector
-import edu.isel.pdm.li51xd.g08.drag.game.model.Word
+import edu.isel.pdm.li51xd.g08.drag.game.model.*
+import edu.isel.pdm.li51xd.g08.drag.game.model.Mode.*
+import edu.isel.pdm.li51xd.g08.drag.game.remote.GameInfo
 import edu.isel.pdm.li51xd.g08.drag.game.remote.Player
 import edu.isel.pdm.li51xd.g08.drag.repo.WORDS_KEY
 import edu.isel.pdm.li51xd.g08.drag.utils.runDelayed
@@ -45,9 +32,8 @@ class DrawViewModel(app: Application, private val savedState: SavedStateHandle) 
     }
     private val app: DragApplication by lazy { getApplication<DragApplication>()}
 
-
-    private val gameId: String by lazy {
-        savedState.get<String>(GAME_ID_KEY) ?: throw IllegalArgumentException()
+    private val gameInfo: GameInfo by lazy {
+        savedState.get<GameInfo>(GAME_INFO_KEY) ?: throw IllegalArgumentException()
     }
     val player: Player by lazy {
         savedState.get<Player>(PLAYER_KEY) ?: throw IllegalArgumentException()
@@ -56,6 +42,19 @@ class DrawViewModel(app: Application, private val savedState: SavedStateHandle) 
     val currentDrawGuess: LiveData<DrawGuess> = MutableLiveData()
     var currentBookOwnerId: String? = null
     var pendingRequest: (() -> Unit)? = null
+
+    val nextPlayerId: String by lazy {
+        val players = gameInfo.players
+        var id: String? = null
+        for(i in 0 until players.size) {
+            if (players[i].id == player.id) {
+                id = if (i == players.size - 1) players[0].id
+                else players[i + 1].id
+                break
+            }
+        }
+        id!!
+    }
 
     private var isScheduled: Boolean = savedState[IS_SCHEDULED_KEY] ?: false
 
@@ -82,33 +81,41 @@ class DrawViewModel(app: Application, private val savedState: SavedStateHandle) 
 
         if (gameMode == ONLINE) {
             gameSubscription = app.repo.subscribeToGame(
-                gameId, player.id,
-                onSubscriptionError = { (currentDrawGuess as MutableLiveData<DrawGuess>).value = null },
+                gameInfo.id, player.id,
+                onSubscriptionError = {
+                    (currentDrawGuess as MutableLiveData<DrawGuess>).value = null
+                },
                 onStateChange = {
-                    val request = {
-                        currentBookOwnerId = it.bookOwnerId
-                        (currentDrawGuess as MutableLiveData<DrawGuess>).value = it.drawGuess
+                    if (!game.drawGuesses.contains(it.drawGuess)) {
+                        game.drawGuesses.clear()
+                        game.drawGuesses.add(it.drawGuess)
+
+                        val request = {
+                            currentBookOwnerId = it.bookOwnerId
+                            (currentDrawGuess as MutableLiveData<DrawGuess>).value = it.drawGuess
+                        }
+
+                        if (currentBookOwnerId == null) request()
+                        else pendingRequest = request
                     }
-                    if (currentBookOwnerId == null) request()
-                    else pendingRequest = request
                 })
             currentBookOwnerId = player.id
-            app.repo.addDrawGuessToBook(gameId, currentBookOwnerId!!, startingWord)
+            app.repo.addDrawGuessToBook(gameInfo.id, currentBookOwnerId!!, startingWord)
         }
         (currentDrawGuess as MutableLiveData<DrawGuess>).value = startingWord
     }
 
     fun defineDrawing() {
         val currentDrawing = game.currentDrawing
+        if (gameMode == OFFLINE) {
+            game.drawGuesses.add(currentDrawing)
+        }
 
-        game.drawGuesses.add(currentDrawing)
-
-        // Add 1 to playerCount due to the first drawGuess being the word definition
-        if (game.drawGuesses.size == config.playerCount + 1) {
+        if (++game.playCount == config.playerCount) {
             game.state = GameState.State.RESULTS
 
             if (gameMode == ONLINE) {
-                app.repo.addDrawGuessToBook(gameId, currentBookOwnerId!!, currentDrawing)
+                app.repo.addDrawGuessToBook(gameInfo.id, currentBookOwnerId!!, currentDrawing)
             }
             (currentDrawGuess as MutableLiveData<DrawGuess>).value = null
         } else {
@@ -118,8 +125,8 @@ class DrawViewModel(app: Application, private val savedState: SavedStateHandle) 
                     (currentDrawGuess as MutableLiveData<DrawGuess>).value = currentDrawing
                 }
                 ONLINE -> {
-                    app.repo.addDrawGuessToBook(gameId, currentBookOwnerId!!, currentDrawing)
-                    app.repo.sendDrawGuess(gameId, player.id, currentBookOwnerId!!, currentDrawing)
+                    app.repo.addDrawGuessToBook(gameInfo.id, currentBookOwnerId!!, currentDrawing)
+                    app.repo.sendDrawGuess(gameInfo.id, nextPlayerId, currentBookOwnerId!!, currentDrawing)
                     currentBookOwnerId = null
                     pendingRequest?.invoke()
                     pendingRequest = null
@@ -130,14 +137,15 @@ class DrawViewModel(app: Application, private val savedState: SavedStateHandle) 
 
     fun defineGuess(word: String) {
         val wordGuess = Word(word)
-        game.drawGuesses.add(wordGuess)
+        if (gameMode == OFFLINE) {
+            game.drawGuesses.add(wordGuess)
+        }
         game.currentDrawing = Drawing()
 
-        // Add 1 to playerCount due to the first drawGuess being the word definition
-        if (game.drawGuesses.size == config.playerCount + 1) {
+        if (++game.playCount == config.playerCount) {
             game.state = GameState.State.RESULTS
             if (gameMode == ONLINE) {
-                app.repo.addDrawGuessToBook(gameId, currentBookOwnerId!!, wordGuess)
+                app.repo.addDrawGuessToBook(gameInfo.id, currentBookOwnerId!!, wordGuess)
             }
             (currentDrawGuess as MutableLiveData<DrawGuess>).value = null
         } else {
@@ -147,10 +155,11 @@ class DrawViewModel(app: Application, private val savedState: SavedStateHandle) 
                     (currentDrawGuess as MutableLiveData<DrawGuess>).value = wordGuess
                 }
                 ONLINE -> {
-                    app.repo.addDrawGuessToBook(gameId, currentBookOwnerId!!, wordGuess)
-                    app.repo.sendDrawGuess(gameId, player.id, currentBookOwnerId!!, wordGuess)
+                    app.repo.addDrawGuessToBook(gameInfo.id, currentBookOwnerId!!, wordGuess)
+                    app.repo.sendDrawGuess(gameInfo.id, nextPlayerId, currentBookOwnerId!!, wordGuess)
                     currentBookOwnerId = null
                     pendingRequest?.invoke()
+                    pendingRequest = null
                 }
             }
         }
@@ -168,9 +177,5 @@ class DrawViewModel(app: Application, private val savedState: SavedStateHandle) 
 
     fun getCurrentDrawing() : Drawing {
         return game.currentDrawing
-    }
-
-    fun getLastDrawGuess() : DrawGuess {
-        return game.drawGuesses.last()
     }
 }

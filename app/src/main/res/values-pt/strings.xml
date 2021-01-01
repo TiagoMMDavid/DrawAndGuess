@@ -29,4 +29,5 @@
     <string name="lobbyList">Lista de Salas</string>
     <string name="error">Erro!</string>
     <string name="errorJoinLobby">Erro ao juntar-se à sala! Por favor tente novamente.</string>
+    <string name="startingGame">A começar…</string>
 </resources>

@@ -8,15 +8,9 @@ import android.view.animation.DecelerateInterpolator
 import androidx.appcompat.app.AppCompatActivity
 import edu.isel.pdm.li51xd.g08.drag.R.string
 import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityResultsBinding
-import edu.isel.pdm.li51xd.g08.drag.game.model.DrawGuess
+import edu.isel.pdm.li51xd.g08.drag.game.model.*
 import edu.isel.pdm.li51xd.g08.drag.game.model.DrawGuess.DrawGuessType.DRAWING
 import edu.isel.pdm.li51xd.g08.drag.game.model.DrawGuess.DrawGuessType.WORD
-import edu.isel.pdm.li51xd.g08.drag.game.model.Drawing
-import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_CONFIGURATION_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_STATE_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.GameConfiguration
-import edu.isel.pdm.li51xd.g08.drag.game.model.GameState
-import edu.isel.pdm.li51xd.g08.drag.game.model.Word
 import edu.isel.pdm.li51xd.g08.drag.repo.WORDS_KEY
 
 private const val RESULT_INDEX_KEY = "DRAG.ResultIndex"

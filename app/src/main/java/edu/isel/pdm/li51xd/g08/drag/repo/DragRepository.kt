@@ -13,12 +13,7 @@ import com.google.firebase.ktx.Firebase
 import edu.isel.pdm.li51xd.g08.drag.BuildConfig
 import edu.isel.pdm.li51xd.g08.drag.game.model.DrawGuess
 import edu.isel.pdm.li51xd.g08.drag.game.model.GameConfiguration
-import edu.isel.pdm.li51xd.g08.drag.game.remote.GameInfo
-import edu.isel.pdm.li51xd.g08.drag.game.remote.LobbyInfo
-import edu.isel.pdm.li51xd.g08.drag.game.remote.Player
-import edu.isel.pdm.li51xd.g08.drag.game.remote.PlayerDrawGuess
-import edu.isel.pdm.li51xd.g08.drag.game.remote.PlayerDrawGuessDto
-import edu.isel.pdm.li51xd.g08.drag.game.remote.PlayerDto
+import edu.isel.pdm.li51xd.g08.drag.game.remote.*
 
 private const val LOBBIES_COLLECTION = "lobbies"
 private const val GAMES_COLLECTION = "games"
@@ -232,43 +227,30 @@ class DragRepository(private val queue: RequestQueue, private val mapper: Object
                     }
                     if (snapshot?.exists() == true) {
                         val gameInfo = snapshot.toGameInfo(mapper)
-                        gameInfo.drawGuesses.forEach loop@{ playerDrawGuess ->
+                        for(i in 0 until gameInfo.drawGuesses.size) {
+                            val playerDrawGuess = gameInfo.drawGuesses[i]
                             if (playerDrawGuess.receiverId == playerId) {
                                 doc.update(GAME_DRAW_GUESSES,
-                                        FieldValue.arrayRemove(mapper.writeValueAsString(playerDrawGuess.toDto(mapper))))
+                                    FieldValue.arrayRemove(mapper.writeValueAsString(playerDrawGuess.toDto(mapper))))
                                     .addOnSuccessListener {
                                         onStateChange(playerDrawGuess)
                                     }
                                     .addOnFailureListener {
                                         onSubscriptionError(IllegalArgumentException())
                                     }
-                                return@loop
+                                break
                             }
                         }
                     }
                 }
     }
 
-    fun sendDrawGuess(gameId: String, playerId: String, bookOwnerId: String, drawGuess: DrawGuess) {
-        val doc = Firebase.firestore
+    fun sendDrawGuess(gameId: String, receiverId: String, bookOwnerId: String, drawGuess: DrawGuess) {
+        val dto = PlayerDrawGuess(bookOwnerId, receiverId, drawGuess).toDto(mapper)
+        Firebase.firestore
             .collection(GAMES_COLLECTION)
             .document(gameId)
-        doc.get().addOnSuccessListener {
-            val gameInfo = it.toGameInfo(mapper)
-            var id: String? = null
-            val players = gameInfo.players
-
-            players.forEachIndexed loop@{ index, currPlayer ->
-                if (currPlayer.id == playerId) {
-                    id = if (index == players.size - 1) players[0].id
-                    else players[index + 1].id
-
-                    return@loop
-                }
-            }
-            val dto = PlayerDrawGuess(bookOwnerId, id!!, drawGuess).toDto(mapper)
-            doc.update(GAME_DRAW_GUESSES, FieldValue.arrayUnion(mapper.writeValueAsString(dto)))
-        }
+            .update(GAME_DRAW_GUESSES, FieldValue.arrayUnion(mapper.writeValueAsString(dto)))
     }
 
     fun addDrawGuessToBook(gameId: String, bookOwnerId: String, drawGuess: DrawGuess) {
@@ -277,12 +259,13 @@ class DragRepository(private val queue: RequestQueue, private val mapper: Object
             .document(gameId)
         doc.get().addOnSuccessListener {
                 val gameInfo = it.toGameInfo(mapper)
-                gameInfo.players.forEach loop@{ player ->
+                for(i in 0 until gameInfo.players.size) {
+                    val player = gameInfo.players[i]
                     if (player.id == bookOwnerId) {
                         doc.update(GAME_PLAYERS, FieldValue.arrayRemove(mapper.writeValueAsString(player.toDto(mapper))))
                         player.book.add(drawGuess)
                         doc.update(GAME_PLAYERS, FieldValue.arrayUnion(mapper.writeValueAsString(player.toDto(mapper))))
-                        return@loop
+                        break
                     }
                 }
             }

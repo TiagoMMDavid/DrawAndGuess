@@ -5,18 +5,11 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import edu.isel.pdm.li51xd.g08.drag.R.string
 import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityLobbyBinding
 import edu.isel.pdm.li51xd.g08.drag.game.DragGameActivity
-import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_CONFIGURATION_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_ID_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_MODE_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.LOBBY_INFO_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.Mode
-import edu.isel.pdm.li51xd.g08.drag.game.model.PLAYER_KEY
+import edu.isel.pdm.li51xd.g08.drag.game.model.*
 import edu.isel.pdm.li51xd.g08.drag.game.remote.LobbyInfo
 import edu.isel.pdm.li51xd.g08.drag.game.remote.Player
 import edu.isel.pdm.li51xd.g08.drag.lobbies.view.PlayerListAdapter
@@ -41,14 +34,7 @@ class DragLobbyActivity : AppCompatActivity() {
         intent.getParcelableExtra<Player>(PLAYER_KEY) ?: throw IllegalArgumentException()
     }
 
-    private val viewModel: DragLobbyViewModel by viewModels {
-        @Suppress("UNCHECKED_CAST")
-        object: ViewModelProvider.Factory {
-            override fun <VM : ViewModel?> create(modelClass: Class<VM>): VM {
-                return DragLobbyViewModel(lobbyInfo, application) as VM
-            }
-        }
-    }
+    private val viewModel: DragLobbyViewModel by viewModels()
 
     private fun updateLobby(players: List<Player>?) {
         binding.playerNames.adapter = PlayerListAdapter(players ?: listOf(), player)
@@ -59,7 +45,7 @@ class DragLobbyActivity : AppCompatActivity() {
         val lobby = viewModel.lobbyInfo.value!!
         startActivity(Intent(this, DragGameActivity::class.java).apply {
             putExtra(GAME_CONFIGURATION_KEY, lobby.gameConfig)
-            putExtra(GAME_ID_KEY, lobby.id)
+            putExtra(GAME_INFO_KEY, viewModel.gameInfo.value)
             putExtra(GAME_MODE_KEY, Mode.ONLINE.name)
 
             putExtra(PLAYER_KEY, player)
@@ -86,23 +72,30 @@ class DragLobbyActivity : AppCompatActivity() {
         }
 
         viewModel.gameInfo.observe(this) {
-            updateLobby(it.players)
-            val timer = object: CountDownTimer(COUNTDOWN_TIME, COUNTDOWN_INTERVAL) {
-                override fun onTick(millisUntilFinished: Long) {
-                    binding.lobbyInfo.text = "${millisUntilFinished / COUNTDOWN_INTERVAL}"
-                }
+            if (!viewModel.countdownStarted) {
+                viewModel.countdownStarted = true
+                updateLobby(it.players)
+                val timer = object: CountDownTimer(COUNTDOWN_TIME, COUNTDOWN_INTERVAL) {
+                    override fun onTick(millisUntilFinished: Long) {
+                        binding.lobbyInfo.text = "${millisUntilFinished / COUNTDOWN_INTERVAL}"
+                    }
 
-                override fun onFinish() {
-                    startGame()
+                    override fun onFinish() {
+                        startGame()
+                    }
                 }
+                timer.start()
             }
-            timer.start()
         }
     }
 
     override fun onResume() {
         super.onResume()
-        updateLobby(lobbyInfo.players)
+        val gameInfo = viewModel.gameInfo.value
+        if (viewModel.countdownStarted) {
+            binding.lobbyInfo.text = getString(string.startingGame)
+        }
+        updateLobby(gameInfo?.players ?: viewModel.lobbyInfo.value?.players)
     }
 
     override fun onBackPressed() {

@@ -13,4 +13,12 @@ class Word(val word: String) : DrawGuess {
     }
 
     override fun toDto(mapper: ObjectMapper) = DrawGuessDto(getType().name, word, null)
+
+    override fun equals(other: Any?): Boolean {
+        val otherDrawGuess = (other as DrawGuess)
+        if (getType() == otherDrawGuess.getType()) {
+            return this.word == (other as Word).word
+        }
+        return false
+    }
 }

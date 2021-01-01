@@ -11,11 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import edu.isel.pdm.li51xd.g08.drag.DragConfigureActivity
 import edu.isel.pdm.li51xd.g08.drag.R
 import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityListBinding
-import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_MODE_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.LOBBY_INFO_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.Mode
-import edu.isel.pdm.li51xd.g08.drag.game.model.PLAYER_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.PLAYER_NAME_KEY
+import edu.isel.pdm.li51xd.g08.drag.game.model.*
 import edu.isel.pdm.li51xd.g08.drag.lobbies.DragLobbyActivity
 import edu.isel.pdm.li51xd.g08.drag.lobbies.list.view.GamesListAdapter
 import edu.isel.pdm.li51xd.g08.drag.repo.WORDS_KEY

@@ -2,16 +2,17 @@ package edu.isel.pdm.li51xd.g08.drag.game.model
 
 import android.os.Parcelable
 import edu.isel.pdm.li51xd.g08.drag.game.model.GameState.State.DEFINING
-import java.util.*
 import kotlinx.android.parcel.Parcelize
+import java.util.*
 
 const val GAME_MODE_KEY = "DRAG.GameMode"
 const val PLAYER_NAME_KEY = "DRAG.PlayerName"
 const val PLAYER_KEY = "DRAG.Player"
 const val GAME_CONFIGURATION_KEY = "DRAG.GameConfiguration"
 const val LOBBY_INFO_KEY = "DRAG.LobbyInfo"
-const val GAME_ID_KEY = "DRAG.GameId"
+const val GAME_INFO_KEY = "DRAG.GameInfo"
 const val GAME_STATE_KEY = "DRAG.GameState"
+const val COUNTDOWN_STARTED_KEY = "DRAG.CountdownStarted"
 
 const val MIN_PLAYERS = 2
 const val MAX_PLAYERS = 10
@@ -33,6 +34,7 @@ enum class Mode {
 @Parcelize
 data class GameState(var currentDrawing: Drawing = Drawing(),
                      val drawGuesses: LinkedList<DrawGuess> = LinkedList(),
+                     var playCount: Int = 0,
                      var currRound: Int = 1,
                      var state: State = DEFINING) : Parcelable {
 

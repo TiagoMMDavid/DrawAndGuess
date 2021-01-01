@@ -3,8 +3,8 @@ package edu.isel.pdm.li51xd.g08.drag.game.remote
 import android.os.Parcelable
 import com.fasterxml.jackson.databind.ObjectMapper
 import edu.isel.pdm.li51xd.g08.drag.game.model.DrawGuess
-import java.util.*
 import kotlinx.android.parcel.Parcelize
+import java.util.*
 
 @Parcelize
 data class Player(val name: String, val book: MutableList<DrawGuess>, val id: String = UUID.randomUUID().toString()) : Parcelable {
