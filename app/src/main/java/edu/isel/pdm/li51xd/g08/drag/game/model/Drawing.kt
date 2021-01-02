@@ -23,12 +23,4 @@ class Drawing(val vectors: LinkedList<Vector> = LinkedList()) : DrawGuess {
 
     override fun toDto(mapper: ObjectMapper) =
         DrawGuessDto(getType().name, null, vectors.map { mapper.writeValueAsString(it) })
-
-    override fun equals(other: Any?): Boolean {
-        val otherDrawGuess = (other as DrawGuess)
-        if (getType() == otherDrawGuess.getType()) {
-            return this.vectors == (other as Drawing).vectors
-        }
-        return false
-    }
 }

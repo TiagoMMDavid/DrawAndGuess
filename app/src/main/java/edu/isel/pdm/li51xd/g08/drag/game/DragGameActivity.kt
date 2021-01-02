@@ -2,6 +2,7 @@ package edu.isel.pdm.li51xd.g08.drag.game
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.view.View.VISIBLE
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -10,11 +11,27 @@ import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityDrawBinding
 import edu.isel.pdm.li51xd.g08.drag.game.model.*
 import edu.isel.pdm.li51xd.g08.drag.game.model.GameState.State.*
 import edu.isel.pdm.li51xd.g08.drag.repo.WORDS_KEY
+import edu.isel.pdm.li51xd.g08.drag.utils.CountDownTimerAdapter
 import edu.isel.pdm.li51xd.g08.drag.utils.EditTextNoEnter
 
 class DragGameActivity : AppCompatActivity() {
     private val binding: ActivityDrawBinding by lazy { ActivityDrawBinding.inflate(layoutInflater) }
     private val viewModel: DrawViewModel by viewModels()
+
+    private var timer: CountDownTimer? = null
+    private var timeLeft: Long = DRAWGUESS_TIME
+
+    private fun startTimer(time: Long) {
+        binding.drawGuessTimerProgress.max = DRAWGUESS_TIME.toInt()
+        binding.drawGuessTimerProgress.progress = DRAWGUESS_TIME.toInt()
+
+        timer = CountDownTimerAdapter(time, COUNTDOWN_INTERVAL) { millisUntilFinished ->
+            timeLeft = millisUntilFinished
+            binding.drawGuessTimerText.text = "${millisUntilFinished / COUNTDOWN_INTERVAL}"
+            binding.drawGuessTimerProgress.progress = (millisUntilFinished - COUNTDOWN_INTERVAL).toInt()
+        }
+        timer?.start()
+    }
 
     private fun drawDrawing(wordToDraw: Word) {
         binding.drawing.visibility = VISIBLE
@@ -24,11 +41,13 @@ class DragGameActivity : AppCompatActivity() {
         binding.drawingWord.isEnabled = false
         binding.drawingWord.setText(wordToDraw.word)
 
-        viewModel.scheduleWork(DRAWGUESS_TIME) { viewModel.defineDrawing() }
-        /*
-        binding.submitButton.setOnClickListener {
+        viewModel.scheduleWork(DRAWGUESS_TIME) {
+            timer?.cancel()
+            this.timeLeft = DRAWGUESS_TIME
+            startTimer(DRAWGUESS_TIME)
+
             viewModel.defineDrawing()
-        } */
+        }
     }
 
     private fun drawGuessing(drawingToGuess: Drawing) {
@@ -41,19 +60,13 @@ class DragGameActivity : AppCompatActivity() {
         binding.drawingWord.setHint(string.guessHint)
 
         viewModel.scheduleWork(DRAWGUESS_TIME) {
+            timer?.cancel()
+            this.timeLeft = DRAWGUESS_TIME
+            startTimer(DRAWGUESS_TIME)
+
             viewModel.defineGuess(binding.drawingWord.text.toString())
             binding.drawing.clearCanvas()
         }
-        /*
-        binding.submitButton.setOnClickListener {
-            val text = binding.drawingWord.text.toString()
-            if (text.isNotEmpty()) {
-                viewModel.defineGuess(text)
-                binding.drawing.clearCanvas()
-            } else {
-                Toast.makeText(applicationContext, string.guessEmpty, Toast.LENGTH_SHORT).show()
-            }
-        } */
     }
 
     private fun drawResults() {
@@ -78,6 +91,9 @@ class DragGameActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
+        timeLeft = savedInstanceState?.getLong(COUNTDOWN_TIME_LEFT_KEY, DRAWGUESS_TIME) ?: DRAWGUESS_TIME
+        startTimer(timeLeft)
+
         binding.drawingWord.addTextChangedListener(EditTextNoEnter())
         binding.drawing.setOnNewVectorListener { x: Float, y: Float -> viewModel.addVectorToModel(x, y) }
         binding.drawing.setOnNewPointListener { x: Float, y: Float -> viewModel.addPointToModel(x, y) }
@@ -96,5 +112,11 @@ class DragGameActivity : AppCompatActivity() {
         if (viewModel.game.state == DEFINING) {
             viewModel.startGame()
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putLong(COUNTDOWN_TIME_LEFT_KEY, timeLeft)
+        timer?.cancel()
     }
 }

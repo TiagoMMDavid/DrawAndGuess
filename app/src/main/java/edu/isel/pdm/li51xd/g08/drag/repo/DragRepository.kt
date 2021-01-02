@@ -17,16 +17,18 @@ import edu.isel.pdm.li51xd.g08.drag.game.remote.*
 
 private const val LOBBIES_COLLECTION = "lobbies"
 private const val GAMES_COLLECTION = "games"
+private const val DRAW_GUESS_COLLECTION = "drawGuesses"
 
 private const val LOBBY_NAME = "name"
 private const val LOBBY_PLAYERS = "players"
 private const val LOBBY_GAME_CONFIG = "gameConfig"
-
 private const val GAME_CONFIG_PLAYER_COUNT = "playerCount"
 private const val GAME_CONFIG_ROUND_COUNT = "roundCount"
 
 private const val GAME_PLAYERS = "players"
-private const val GAME_DRAW_GUESSES = "drawGuesses"
+
+private const val DG_DRAW_GUESS = "drawGuess"
+private const val DG_BOOK_OWNER = "bookOwnerId"
 
 private fun toGameConfiguration(map: Map<String, Any>) =
     GameConfiguration(
@@ -43,15 +45,6 @@ private fun toPlayers(list: List<String>, mapper: ObjectMapper) : MutableList<Pl
     return mutableList
 }
 
-private fun toPlayerDrawGuesses(list: List<String>, mapper: ObjectMapper) : MutableList<PlayerDrawGuess> {
-    val mutableList = mutableListOf<PlayerDrawGuess>()
-    list.forEach {
-        val drawGuessDto = mapper.readValue(it, PlayerDrawGuessDto::class.java)
-        mutableList.add(drawGuessDto.toPlayerDrawGuess(mapper))
-    }
-    return mutableList
-}
-
 private fun DocumentSnapshot.toLobbyInfo(mapper: ObjectMapper) =
     LobbyInfo(
         id,
@@ -63,9 +56,14 @@ private fun DocumentSnapshot.toLobbyInfo(mapper: ObjectMapper) =
 private fun DocumentSnapshot.toGameInfo(mapper: ObjectMapper) =
     GameInfo(
         id,
-        toPlayerDrawGuesses(data!![GAME_DRAW_GUESSES] as List<String>, mapper),
         toPlayers(data!![LOBBY_PLAYERS] as List<String>, mapper)
     )
+
+private fun DocumentSnapshot.toPlayerDrawGuess(mapper: ObjectMapper) =
+        PlayerDrawGuess(
+                data!![DG_BOOK_OWNER] as String,
+                mapper.readValue(data!![DG_DRAW_GUESS] as String, DrawGuessDto::class.java).toDrawGuess(mapper)
+        )
 
 class DragRepository(private val queue: RequestQueue, private val mapper: ObjectMapper) {
 
@@ -144,8 +142,7 @@ class DragRepository(private val queue: RequestQueue, private val mapper: Object
                                 Firebase.firestore.collection(GAMES_COLLECTION)
                                     .document(lobbyId)
                                     .set(hashMapOf(
-                                        GAME_PLAYERS to lobby.players.map { player ->  mapper.writeValueAsString(player.toDto(mapper)) },
-                                        GAME_DRAW_GUESSES to listOf()
+                                        GAME_PLAYERS to lobby.players.map { player ->  mapper.writeValueAsString(player.toDto(mapper)) }
                                     ))
                                     .addOnSuccessListener { onSuccess(lobby, player) }
                             }
@@ -213,12 +210,12 @@ class DragRepository(private val queue: RequestQueue, private val mapper: Object
                 }
     }
 
-    fun subscribeToGame(gameId: String, playerId: String,
-                        onSubscriptionError: (Exception) -> Unit,
-                        onStateChange: (PlayerDrawGuess) -> Unit) : ListenerRegistration {
+    fun subscribeToDrawGuess(gameId: String, playerId: String,
+                             onSubscriptionError: (Exception) -> Unit,
+                             onStateChange: (PlayerDrawGuess) -> Unit) : ListenerRegistration {
         val doc = Firebase.firestore
-                .collection(GAMES_COLLECTION)
-                .document(gameId)
+                .collection(DRAW_GUESS_COLLECTION)
+                .document("${gameId}-${playerId}")
         return doc
                 .addSnapshotListener { snapshot, error ->
                     if (error != null) {
@@ -226,31 +223,20 @@ class DragRepository(private val queue: RequestQueue, private val mapper: Object
                         return@addSnapshotListener
                     }
                     if (snapshot?.exists() == true) {
-                        val gameInfo = snapshot.toGameInfo(mapper)
-                        for(i in 0 until gameInfo.drawGuesses.size) {
-                            val playerDrawGuess = gameInfo.drawGuesses[i]
-                            if (playerDrawGuess.receiverId == playerId) {
-                                doc.update(GAME_DRAW_GUESSES,
-                                    FieldValue.arrayRemove(mapper.writeValueAsString(playerDrawGuess.toDto(mapper))))
-                                    .addOnSuccessListener {
-                                        onStateChange(playerDrawGuess)
-                                    }
-                                    .addOnFailureListener {
-                                        onSubscriptionError(IllegalArgumentException())
-                                    }
-                                break
-                            }
-                        }
+                        val playerDrawGuess = snapshot.toPlayerDrawGuess(mapper)
+                        doc.delete()
+                            .addOnSuccessListener { onStateChange(playerDrawGuess) }
+                            .addOnFailureListener { onSubscriptionError(IllegalArgumentException()) }
                     }
                 }
     }
 
     fun sendDrawGuess(gameId: String, receiverId: String, bookOwnerId: String, drawGuess: DrawGuess) {
-        val dto = PlayerDrawGuess(bookOwnerId, receiverId, drawGuess).toDto(mapper)
+        val dto = PlayerDrawGuess(bookOwnerId, drawGuess).toDto(mapper)
         Firebase.firestore
-            .collection(GAMES_COLLECTION)
-            .document(gameId)
-            .update(GAME_DRAW_GUESSES, FieldValue.arrayUnion(mapper.writeValueAsString(dto)))
+            .collection(DRAW_GUESS_COLLECTION)
+            .document("${gameId}-${receiverId}")
+            .set(hashMapOf(DG_BOOK_OWNER to dto.bookOwnerId, DG_DRAW_GUESS to mapper.writeValueAsString(dto.drawGuess)))
     }
 
     fun addDrawGuessToBook(gameId: String, bookOwnerId: String, drawGuess: DrawGuess) {

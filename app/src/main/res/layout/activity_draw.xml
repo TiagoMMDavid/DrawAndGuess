@@ -24,10 +24,11 @@
         android:id="@+id/relativeLayout"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="@+id/submitButton"
-        app:layout_constraintEnd_toStartOf="@+id/submitButton"
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="@+id/drawGuessTimer"
+        app:layout_constraintEnd_toStartOf="@+id/drawGuessTimer"
         app:layout_constraintStart_toStartOf="@+id/drawing"
-        app:layout_constraintTop_toTopOf="@+id/submitButton">
+        app:layout_constraintTop_toTopOf="@+id/drawGuessTimer">
 
         <EditText
             android:id="@+id/drawingWord"
@@ -43,13 +44,40 @@
             android:textSize="18sp" />
     </RelativeLayout>
 
-    <Button
-        android:id="@+id/submitButton"
+    <RelativeLayout
+        android:id="@+id/drawGuessTimer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="22dp"
-        android:text="@string/submitButton"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
+        android:layout_weight="1"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/drawing" />
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ProgressBar
+            android:id="@+id/drawGuessTimerProgress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:indeterminate="false"
+            android:layoutDirection="rtl"
+            android:max="100"
+            android:progress="100"
+            android:progressDrawable="@drawable/circle_progress_bar" />
+
+        <TextView
+            android:id="@+id/drawGuessTimerText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@id/drawGuessTimerProgress"
+            android:layout_alignTop="@id/drawGuessTimerProgress"
+            android:layout_alignEnd="@id/drawGuessTimerProgress"
+            android:layout_alignBottom="@id/drawGuessTimerProgress"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:padding="10dp"
+            android:text="60" />
+
+    </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

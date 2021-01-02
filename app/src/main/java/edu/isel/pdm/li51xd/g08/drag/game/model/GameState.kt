@@ -12,7 +12,9 @@ const val GAME_CONFIGURATION_KEY = "DRAG.GameConfiguration"
 const val LOBBY_INFO_KEY = "DRAG.LobbyInfo"
 const val GAME_INFO_KEY = "DRAG.GameInfo"
 const val GAME_STATE_KEY = "DRAG.GameState"
-const val COUNTDOWN_STARTED_KEY = "DRAG.CountdownStarted"
+const val COUNTDOWN_TIME_LEFT_KEY = "DRAG.CountdownTimeLeft"
+const val IS_SCHEDULED_KEY = "Drag.IsScheduled"
+const val COUNTDOWN_INTERVAL = 1000L
 
 const val MIN_PLAYERS = 2
 const val MAX_PLAYERS = 10

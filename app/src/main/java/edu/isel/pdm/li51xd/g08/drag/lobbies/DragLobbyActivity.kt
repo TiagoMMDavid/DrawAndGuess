@@ -14,9 +14,9 @@ import edu.isel.pdm.li51xd.g08.drag.game.remote.LobbyInfo
 import edu.isel.pdm.li51xd.g08.drag.game.remote.Player
 import edu.isel.pdm.li51xd.g08.drag.lobbies.view.PlayerListAdapter
 import edu.isel.pdm.li51xd.g08.drag.repo.WORDS_KEY
+import edu.isel.pdm.li51xd.g08.drag.utils.CountDownTimerAdapter
 
 private const val COUNTDOWN_TIME = 5000L
-private const val COUNTDOWN_INTERVAL = 1000L
 
 class DragLobbyActivity : AppCompatActivity() {
 
@@ -35,6 +35,9 @@ class DragLobbyActivity : AppCompatActivity() {
     }
 
     private val viewModel: DragLobbyViewModel by viewModels()
+
+    private var timer: CountDownTimer? = null
+    private var timeLeft: Long = COUNTDOWN_TIME
 
     private fun updateLobby(players: List<Player>?) {
         binding.playerNames.adapter = PlayerListAdapter(players ?: listOf(), player)
@@ -58,6 +61,8 @@ class DragLobbyActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
+        timeLeft = savedInstanceState?.getLong(COUNTDOWN_TIME_LEFT_KEY, COUNTDOWN_TIME) ?: COUNTDOWN_TIME
+
         binding.lobbyName.text = lobbyInfo.name
         binding.lobbyInfo.text = getString(string.lobbyWaiting)
         binding.playerNames.setHasFixedSize(true)
@@ -72,34 +77,33 @@ class DragLobbyActivity : AppCompatActivity() {
         }
 
         viewModel.gameInfo.observe(this) {
-            if (!viewModel.countdownStarted) {
-                viewModel.countdownStarted = true
-                updateLobby(it.players)
-                val timer = object: CountDownTimer(COUNTDOWN_TIME, COUNTDOWN_INTERVAL) {
-                    override fun onTick(millisUntilFinished: Long) {
-                        binding.lobbyInfo.text = "${millisUntilFinished / COUNTDOWN_INTERVAL}"
-                    }
+            updateLobby(it.players)
 
-                    override fun onFinish() {
-                        startGame()
-                    }
-                }
-                timer.start()
+            viewModel.scheduleWork(COUNTDOWN_TIME) { startGame() }
+            timer = CountDownTimerAdapter(timeLeft, COUNTDOWN_INTERVAL) { millisUntilFinished ->
+                timeLeft = millisUntilFinished
+                binding.lobbyInfo.text = "${millisUntilFinished / COUNTDOWN_INTERVAL}"
             }
+            timer?.start()
         }
     }
 
     override fun onResume() {
         super.onResume()
         val gameInfo = viewModel.gameInfo.value
-        if (viewModel.countdownStarted) {
-            binding.lobbyInfo.text = getString(string.startingGame)
-        }
         updateLobby(gameInfo?.players ?: viewModel.lobbyInfo.value?.players)
     }
 
     override fun onBackPressed() {
-        super.onBackPressed()
-        viewModel.exitLobby(player)
+        if (viewModel.gameInfo.value == null) {
+            super.onBackPressed()
+            viewModel.exitLobby(player)
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putLong(COUNTDOWN_TIME_LEFT_KEY, timeLeft)
+        timer?.cancel()
     }
 }
