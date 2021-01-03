@@ -6,8 +6,6 @@ import edu.isel.pdm.li51xd.g08.drag.game.model.DrawGuess.DrawGuessType
 import edu.isel.pdm.li51xd.g08.drag.game.model.DrawGuess.DrawGuessType.DRAWING
 import edu.isel.pdm.li51xd.g08.drag.game.remote.DrawGuessDto
 import kotlinx.android.parcel.Parcelize
-import java.util.*
-import kotlin.collections.ArrayList
 
 @Parcelize
 data class Point(val x: Float, val y: Float) : Parcelable
@@ -16,7 +14,7 @@ data class Point(val x: Float, val y: Float) : Parcelable
 data class Vector(val points: ArrayList<Point> = ArrayList()) : Parcelable
 
 @Parcelize
-class Drawing(val vectors: LinkedList<Vector> = LinkedList()) : DrawGuess {
+class Drawing(val vectors: MutableList<Vector> = mutableListOf()) : DrawGuess {
     override fun getType(): DrawGuessType {
         return DRAWING
     }

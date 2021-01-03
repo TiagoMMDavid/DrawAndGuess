@@ -30,4 +30,7 @@
     <string name="error">Erro!</string>
     <string name="errorJoinLobby">Erro ao juntar-se à sala! Por favor tente novamente.</string>
     <string name="startingGame">A começar…</string>
+    <string name="resultsWaiting">A obter resultados...</string>
+    <string name="localPlayer">Jogador Local</string>
+    <string name="errorGetResults">Erro ao obter resultados!</string>
 </resources>

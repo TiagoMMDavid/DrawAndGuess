@@ -9,7 +9,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import edu.isel.pdm.li51xd.g08.drag.R.string
 import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityLobbyBinding
 import edu.isel.pdm.li51xd.g08.drag.game.DragGameActivity
-import edu.isel.pdm.li51xd.g08.drag.game.model.*
+import edu.isel.pdm.li51xd.g08.drag.game.model.COUNTDOWN_INTERVAL
+import edu.isel.pdm.li51xd.g08.drag.game.model.COUNTDOWN_TIME_LEFT_KEY
+import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_CONFIGURATION_KEY
+import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_INFO_KEY
+import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_MODE_KEY
+import edu.isel.pdm.li51xd.g08.drag.game.model.LOBBY_INFO_KEY
+import edu.isel.pdm.li51xd.g08.drag.game.model.Mode
+import edu.isel.pdm.li51xd.g08.drag.game.model.PLAYER_KEY
 import edu.isel.pdm.li51xd.g08.drag.game.remote.LobbyInfo
 import edu.isel.pdm.li51xd.g08.drag.game.remote.Player
 import edu.isel.pdm.li51xd.g08.drag.lobbies.view.PlayerListAdapter

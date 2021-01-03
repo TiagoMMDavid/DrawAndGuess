@@ -6,6 +6,53 @@
     android:layout_height="match_parent"
     tools:context=".game.DragResultsActivity">
 
+    <RelativeLayout
+        android:id="@+id/drawGuessTimer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_weight="1"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/indexBar"
+        app:layout_constraintEnd_toStartOf="@+id/drawing">
+
+        <ProgressBar
+            android:id="@+id/drawGuessTimerProgress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:indeterminate="false"
+            android:layoutDirection="rtl"
+            android:max="100"
+            android:progress="100"
+            android:progressDrawable="@drawable/circle_progress_bar" />
+
+        <TextView
+            android:id="@+id/drawGuessTimerText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@id/drawGuessTimerProgress"
+            android:layout_alignTop="@id/drawGuessTimerProgress"
+            android:layout_alignEnd="@id/drawGuessTimerProgress"
+            android:layout_alignBottom="@id/drawGuessTimerProgress"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:padding="10dp"
+            android:text="60" />
+
+    </RelativeLayout>
+
+    <Spinner
+        android:id="@+id/playerSelector"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        app:layout_constraintBottom_toTopOf="@+id/finishButton"
+        app:layout_constraintEnd_toStartOf="@+id/drawing"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/roundEndText" />
+
     <ProgressBar
         android:id="@+id/indexBar"
         style="?android:attr/progressBarStyleHorizontal"
@@ -48,6 +95,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:text="@string/finishGame"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@+id/drawing"
         app:layout_constraintEnd_toStartOf="@+id/drawing" />
 

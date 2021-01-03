@@ -14,11 +14,10 @@ import edu.isel.pdm.li51xd.g08.drag.game.model.Vector
 import edu.isel.pdm.li51xd.g08.drag.listeners.NewPointListener
 import edu.isel.pdm.li51xd.g08.drag.listeners.NewVectorListener
 import edu.isel.pdm.li51xd.g08.drag.listeners.SizeChangeListener
-import java.util.*
 
 class DrawingView(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
     private val currPath: Path = Path()
-    private val currStartPoints: LinkedList<Point> = LinkedList()
+    private val currStartPoints: MutableList<Point> = mutableListOf()
 
     private var viewHeight = 0
     private var viewWidth = 0

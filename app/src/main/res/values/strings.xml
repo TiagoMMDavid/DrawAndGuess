@@ -29,4 +29,7 @@
     <string name="error">Error!</string>
     <string name="errorJoinLobby">Failed to join lobby! Please try again.</string>
     <string name="startingGame">Starting…</string>
+    <string name="resultsWaiting">Gathering results…</string>
+    <string name="localPlayer">Local Player</string>
+    <string name="errorGetResults">Error while gathering results!</string>
 </resources>

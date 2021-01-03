@@ -6,6 +6,44 @@
     android:layout_height="match_parent"
     tools:context=".game.DragResultsActivity">
 
+    <RelativeLayout
+        android:id="@+id/drawGuessTimer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_weight="1"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/drawing"
+        app:layout_constraintStart_toStartOf="@+id/drawing"
+        app:layout_constraintTop_toBottomOf="@+id/indexBar">
+
+        <ProgressBar
+            android:id="@+id/drawGuessTimerProgress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:indeterminate="false"
+            android:layoutDirection="rtl"
+            android:max="100"
+            android:progress="100"
+            android:progressDrawable="@drawable/circle_progress_bar" />
+
+        <TextView
+            android:id="@+id/drawGuessTimerText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@id/drawGuessTimerProgress"
+            android:layout_alignTop="@id/drawGuessTimerProgress"
+            android:layout_alignEnd="@id/drawGuessTimerProgress"
+            android:layout_alignBottom="@id/drawGuessTimerProgress"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:padding="10dp"
+            android:text="60" />
+
+    </RelativeLayout>
+
     <TextView
         android:id="@+id/roundEndText"
         android:layout_width="wrap_content"
@@ -30,7 +68,7 @@
         app:layout_constraintDimensionRatio="0.6"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/roundEndText" />
+        app:layout_constraintTop_toBottomOf="@+id/playerSelector" />
 
     <Button
         android:id="@+id/finishButton"
@@ -38,6 +76,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:text="@string/finishGame"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/drawing"
         app:layout_constraintStart_toStartOf="@+id/drawing" />
@@ -73,5 +112,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/drawing" />
+
+    <Spinner
+        android:id="@+id/playerSelector"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="@+id/drawing"
+        app:layout_constraintStart_toStartOf="@+id/drawing"
+        app:layout_constraintTop_toBottomOf="@+id/roundEndText" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

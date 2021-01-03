@@ -8,15 +8,29 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import edu.isel.pdm.li51xd.g08.drag.R.string
 import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityDrawBinding
-import edu.isel.pdm.li51xd.g08.drag.game.model.*
-import edu.isel.pdm.li51xd.g08.drag.game.model.GameState.State.*
+import edu.isel.pdm.li51xd.g08.drag.game.model.COUNTDOWN_INTERVAL
+import edu.isel.pdm.li51xd.g08.drag.game.model.COUNTDOWN_TIME_LEFT_KEY
+import edu.isel.pdm.li51xd.g08.drag.game.model.DRAWGUESS_TIME
+import edu.isel.pdm.li51xd.g08.drag.game.model.DrawGuess
+import edu.isel.pdm.li51xd.g08.drag.game.model.Drawing
+import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_CONFIGURATION_KEY
+import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_INFO_KEY
+import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_MODE_KEY
+import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_STATE_KEY
+import edu.isel.pdm.li51xd.g08.drag.game.model.GameState.State.DEFINING
+import edu.isel.pdm.li51xd.g08.drag.game.model.GameState.State.DRAWING
+import edu.isel.pdm.li51xd.g08.drag.game.model.GameState.State.GUESSING
+import edu.isel.pdm.li51xd.g08.drag.game.model.GameState.State.RESULTS
+import edu.isel.pdm.li51xd.g08.drag.game.model.Mode.ONLINE
+import edu.isel.pdm.li51xd.g08.drag.game.model.PLAYER_KEY
+import edu.isel.pdm.li51xd.g08.drag.game.model.Word
 import edu.isel.pdm.li51xd.g08.drag.repo.WORDS_KEY
 import edu.isel.pdm.li51xd.g08.drag.utils.CountDownTimerAdapter
 import edu.isel.pdm.li51xd.g08.drag.utils.EditTextNoEnter
 
 class DragGameActivity : AppCompatActivity() {
     private val binding: ActivityDrawBinding by lazy { ActivityDrawBinding.inflate(layoutInflater) }
-    private val viewModel: DrawViewModel by viewModels()
+    private val viewModel: DragGameViewModel by viewModels()
 
     private var timer: CountDownTimer? = null
     private var timeLeft: Long = DRAWGUESS_TIME
@@ -70,10 +84,16 @@ class DragGameActivity : AppCompatActivity() {
     }
 
     private fun drawResults() {
+        viewModel.clearSubscription()
         startActivity(Intent(this, DragResultsActivity::class.java).apply {
             putExtra(GAME_CONFIGURATION_KEY, viewModel.config)
             putExtra(GAME_STATE_KEY, viewModel.game)
             putStringArrayListExtra(WORDS_KEY, viewModel.words)
+            putExtra(GAME_MODE_KEY, viewModel.gameMode.name)
+            if (viewModel.gameMode == ONLINE) {
+                putExtra(GAME_INFO_KEY, viewModel.gameInfo)
+                putExtra(PLAYER_KEY, viewModel.player)
+            }
         })
         finish()
     }
