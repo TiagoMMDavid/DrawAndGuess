@@ -40,7 +40,7 @@ class DragResultsViewModel(app: Application, private val savedState: SavedStateH
     }
     var player: Player? = savedState.get<Player>(PLAYER_KEY)
 
-    var gameInfo: GameInfo = savedState.get<GameInfo>(GAME_INFO_KEY) ?: throw IllegalArgumentException()
+    var gameInfo: GameInfo? = savedState.get<GameInfo>(GAME_INFO_KEY)
     var currentDrawGuesses: LiveData<List<DrawGuess>> = MutableLiveData()
 
     private val app: DragApplication by lazy { getApplication<DragApplication>()}
@@ -59,22 +59,26 @@ class DragResultsViewModel(app: Application, private val savedState: SavedStateH
         }
     }
 
-    fun init() {
+    fun gatherResults(finishedGatheringListener: () -> Unit) {
         when(gameMode) {
             OFFLINE -> {
-                (currentDrawGuesses as MutableLiveData).value = game.drawGuesses
+                updateCurrentDrawGuesses {
+                    finishedGatheringListener()
+                }
             }
             ONLINE -> {
                 gameSubscription = gameSubscription ?: app.repo.subscribeToGame(
-                    gameInfo.id,
+                    gameInfo!!.id,
                     onSubscriptionError = {
                         (currentDrawGuesses as MutableLiveData<List<DrawGuess>>).value = null
                     }, onStateChange = {
                         val value = (currentDrawGuesses as MutableLiveData).value
-                        if (value.isNullOrEmpty()) {
+                        if (value != null) {
                             this.gameInfo = it
                             savedState[GAME_INFO_KEY] = it
-                            updateCurrentDrawGuesses()
+                            updateCurrentDrawGuesses {
+                                finishedGatheringListener()
+                            }
                         }
                     })
             }
@@ -87,33 +91,36 @@ class DragResultsViewModel(app: Application, private val savedState: SavedStateH
 
     fun exitGame() {
         if (gameMode == ONLINE) {
-            app.repo.exitGame(gameInfo.id, player!!)
+            app.repo.exitGame(gameInfo!!.id, player!!)
         }
     }
 
     fun getPlayers() : List<Player> {
         when(gameMode) {
             OFFLINE -> return listOf(Player(app.resources.getString(R.string.localPlayer)))
-            ONLINE -> return gameInfo.players
+            ONLINE -> return gameInfo!!.players
         }
     }
 
-    fun updateCurrentDrawGuesses(playerId: String? = null) {
-        if (gameMode != ONLINE) throw IllegalStateException()
-
-        for(i in 0 until gameInfo.players.size) {
-            val player = gameInfo.players[i]
-            if (player.book.size != config.playerCount + 1) {
-                return
+    fun updateCurrentDrawGuesses(playerId: String? = null, finishedGatheringListener: (() -> Unit)? = null) {
+        if (gameMode == OFFLINE) {
+            finishedGatheringListener?.invoke()
+            (currentDrawGuesses as MutableLiveData).value = game.drawGuesses
+        } else {
+            for (i in 0 until gameInfo!!.players.size) {
+                val player = gameInfo!!.players[i]
+                if (player.book.size != config.playerCount + 1) {
+                    return
+                }
+                if (player.id == this.player!!.id) {
+                    this.player = player
+                }
+                if (player.id == playerId) {
+                    (currentDrawGuesses as MutableLiveData).value = player.book
+                    return
+                }
             }
-            if (player.id == this.player!!.id) {
-                this.player = player
-            }
-            if (player.id == playerId) {
-                (currentDrawGuesses as MutableLiveData).value = player.book
-                return
-            }
+            finishedGatheringListener?.invoke()
         }
-        (currentDrawGuesses as MutableLiveData).value = listOf()
     }
 }

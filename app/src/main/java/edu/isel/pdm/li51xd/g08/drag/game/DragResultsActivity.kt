@@ -5,14 +5,12 @@ import android.animation.ObjectAnimator
 import android.content.Intent
 import android.os.Bundle
 import android.os.CountDownTimer
-import android.util.Log
 import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import edu.isel.pdm.li51xd.g08.drag.DragApplication
 import edu.isel.pdm.li51xd.g08.drag.R.string
 import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityResultsBinding
 import edu.isel.pdm.li51xd.g08.drag.game.model.COUNTDOWN_INTERVAL
@@ -71,7 +69,7 @@ class DragResultsActivity : AppCompatActivity() {
             putStringArrayListExtra(WORDS_KEY, viewModel.words)
             putExtra(GAME_MODE_KEY, viewModel.gameMode.name)
             if (viewModel.gameMode == ONLINE) {
-                putExtra(GAME_INFO_KEY, GameInfo("${viewModel.gameInfo.id}-${nextRound}",viewModel.gameInfo.players))
+                putExtra(GAME_INFO_KEY, GameInfo("${viewModel.gameInfo!!.id}-${nextRound}",viewModel.gameInfo!!.players))
                 putExtra(PLAYER_KEY, viewModel.player)
             }
         })
@@ -150,11 +148,14 @@ class DragResultsActivity : AppCompatActivity() {
     }
 
     private fun finishGathering() {
-        binding.playerSelector.isEnabled = true
+        // Only enable the selector if we're online
+        binding.playerSelector.isEnabled = viewModel.gameMode == ONLINE
+
+        // Get the draw guesses from the first player on the list
         viewModel.updateCurrentDrawGuesses((binding.playerSelector.getItemAtPosition(0) as Player).id)
 
         if (!isLastRound) {
-            //TODO: Create a new game with the same id as in startGame for another round (use app.repo.createGame)
+            //TODO: Create a new game WHEN ONLINE with the same id as in startGame for another round (use app.repo.createGame)
 
             binding.drawGuessTimer.visibility = View.VISIBLE
             startTimer(timeLeft)
@@ -181,13 +182,14 @@ class DragResultsActivity : AppCompatActivity() {
         viewModel.currentDrawGuesses.observe(this) {
             if (it == null) {
                 Toast.makeText(this, string.errorGetResults, Toast.LENGTH_LONG).show()
-            } else if (it.isEmpty() && viewModel.gameMode == ONLINE && !binding.playerSelector.isEnabled) {
-                finishGathering()
-            } else if (it.isNotEmpty()) {
+            } else {
                 updateDrawGuesses(it)
             }
         }
-        viewModel.init()
+
+        viewModel.gatherResults {
+            finishGathering()
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
