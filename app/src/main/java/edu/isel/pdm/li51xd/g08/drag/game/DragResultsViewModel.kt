@@ -73,7 +73,7 @@ class DragResultsViewModel(app: Application, private val savedState: SavedStateH
                         (currentDrawGuesses as MutableLiveData<List<DrawGuess>>).value = null
                     }, onStateChange = {
                         val value = (currentDrawGuesses as MutableLiveData).value
-                        if (value != null) {
+                        if (value == null) {
                             this.gameInfo = it
                             savedState[GAME_INFO_KEY] = it
                             updateCurrentDrawGuesses {

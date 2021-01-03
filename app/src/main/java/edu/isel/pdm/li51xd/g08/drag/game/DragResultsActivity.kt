@@ -5,6 +5,7 @@ import android.animation.ObjectAnimator
 import android.content.Intent
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.util.Log
 import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.widget.ArrayAdapter
@@ -148,11 +149,13 @@ class DragResultsActivity : AppCompatActivity() {
     }
 
     private fun finishGathering() {
-        // Only enable the selector if we're online
-        binding.playerSelector.isEnabled = viewModel.gameMode == ONLINE
+        if (viewModel.gameMode == ONLINE) {
+            // Only enable the selector if we're online.
+            binding.playerSelector.isEnabled = true
 
-        // Get the draw guesses from the first player on the list
-        viewModel.updateCurrentDrawGuesses((binding.playerSelector.getItemAtPosition(0) as Player).id)
+            // In offline mode, there's no need to update currentDrawGuesses
+            viewModel.updateCurrentDrawGuesses((binding.playerSelector.getItemAtPosition(0) as Player).id)
+        }
 
         if (!isLastRound) {
             //TODO: Create a new game WHEN ONLINE with the same id as in startGame for another round (use app.repo.createGame)
