@@ -25,8 +25,6 @@ private const val LOBBY_GAME_CONFIG = "gameConfig"
 private const val GAME_CONFIG_PLAYER_COUNT = "playerCount"
 private const val GAME_CONFIG_ROUND_COUNT = "roundCount"
 
-private const val GAME_PLAYERS = "players"
-
 private const val DG_DRAW_GUESS = "drawGuess"
 private const val DG_BOOK_OWNER = "bookOwnerId"
 
@@ -36,7 +34,16 @@ private fun toGameConfiguration(map: Map<String, Any>) =
         (map[GAME_CONFIG_ROUND_COUNT] as Long).toInt()
     )
 
-private fun toPlayers(list: List<String>, mapper: ObjectMapper) : MutableList<Player> {
+private fun toGamePlayers(playerMap: Map<String, String>, mapper: ObjectMapper) : Map<String, Player> {
+    val mutableMap = mutableMapOf<String, Player>()
+    playerMap.forEach {
+        val playerDto = mapper.readValue(it.value, PlayerDto::class.java)
+        mutableMap[it.key] = playerDto.toPlayer(mapper)
+    }
+    return mutableMap
+}
+
+private fun toLobbyPlayers(list: List<String>, mapper: ObjectMapper) : MutableList<Player> {
     val mutableList = mutableListOf<Player>()
     list.forEach {
         val playerDto = mapper.readValue(it, PlayerDto::class.java)
@@ -49,14 +56,14 @@ private fun DocumentSnapshot.toLobbyInfo(mapper: ObjectMapper) =
     LobbyInfo(
         id,
         data!![LOBBY_NAME] as String,
-        toPlayers(data!![LOBBY_PLAYERS] as List<String>, mapper),
+        toLobbyPlayers(data!![LOBBY_PLAYERS] as List<String>, mapper),
         toGameConfiguration(data!![LOBBY_GAME_CONFIG] as Map<String, Any>)
     )
 
 private fun DocumentSnapshot.toGameInfo(mapper: ObjectMapper) =
     GameInfo(
         id,
-        toPlayers(data!![LOBBY_PLAYERS] as List<String>, mapper)
+        toGamePlayers(data as Map<String, String>, mapper)
     )
 
 private fun DocumentSnapshot.toPlayerDrawGuess(mapper: ObjectMapper) =
@@ -107,7 +114,7 @@ class DragRepository(private val queue: RequestQueue, private val mapper: Object
                     onSuccess: (LobbyInfo, Player) -> Unit,
                     onError: (Exception) -> Unit) {
 
-        val player = Player(playerName)
+        val player = Player(name = playerName)
         val players = mutableListOf(player)
         val playersBlob = players.map { mapper.writeValueAsString(it.toDto(mapper)) }
         Firebase.firestore.collection(LOBBIES_COLLECTION)
@@ -119,11 +126,14 @@ class DragRepository(private val queue: RequestQueue, private val mapper: Object
 
     fun createGame(gameId: String, players: List<Player>,
                    onSuccess: () -> Unit) {
+        val map = hashMapOf<String, String>()
+        players.forEachIndexed { idx, player ->
+            val dto = Player(idx, player.id, player.name).toDto(mapper)
+            map[player.id] = mapper.writeValueAsString(dto)
+        }
         Firebase.firestore.collection(GAMES_COLLECTION)
             .document(gameId)
-            .set(hashMapOf(
-                GAME_PLAYERS to players.map { player ->  mapper.writeValueAsString(player.toDto(mapper)) }
-            ))
+            .set(map)
             .addOnSuccessListener { onSuccess() }
     }
 
@@ -143,7 +153,7 @@ class DragRepository(private val queue: RequestQueue, private val mapper: Object
                 val lobby = it.toLobbyInfo(mapper)
                 val playerCount = lobby.gameConfig.playerCount
                 if (lobby.players.size < playerCount) {
-                    val player = Player(playerName)
+                    val player = Player(name = playerName)
 
                     if (lobby.players.size == playerCount - 1) {
                         // Lobby is full
@@ -195,10 +205,16 @@ class DragRepository(private val queue: RequestQueue, private val mapper: Object
                 if (game.players.size == 1) {
                     document.delete()
                 } else {
-                    document
-                        .update(GAME_PLAYERS, FieldValue.arrayRemove(mapper.writeValueAsString(player.toDto(mapper))))
+                    document.update(hashMapOf<String, Any>(player.id to FieldValue.delete()))
                 }
             }
+    }
+
+    fun deleteGame(gameId: String) {
+        Firebase.firestore
+            .collection(GAMES_COLLECTION)
+            .document(gameId)
+            .delete()
     }
 
     fun subscribeToLobby(lobbyId: String,
@@ -269,16 +285,10 @@ class DragRepository(private val queue: RequestQueue, private val mapper: Object
             .collection(GAMES_COLLECTION)
             .document(gameId)
         doc.get().addOnSuccessListener {
-                val gameInfo = it.toGameInfo(mapper)
-                for(i in 0 until gameInfo.players.size) {
-                    val player = gameInfo.players[i]
-                    if (player.id == bookOwnerId) {
-                        doc.update(GAME_PLAYERS, FieldValue.arrayRemove(mapper.writeValueAsString(player.toDto(mapper))))
-                        player.book.add(drawGuess)
-                        doc.update(GAME_PLAYERS, FieldValue.arrayUnion(mapper.writeValueAsString(player.toDto(mapper))))
-                        break
-                    }
-                }
-            }
+            val gameInfo = it.toGameInfo(mapper)
+            val player = gameInfo.players[bookOwnerId]
+            player!!.book.add(drawGuess)
+            doc.update(bookOwnerId, mapper.writeValueAsString(player.toDto(mapper)))
+        }
     }
 }

@@ -6,3 +6,5 @@ import android.os.Looper
 fun runDelayed(millis: Long, action: () -> Unit) {
     Handler(Looper.getMainLooper()).postDelayed(action, millis)
 }
+
+fun <K, V> Map<K, V>.toValueList() = this.toList().map { it.second }

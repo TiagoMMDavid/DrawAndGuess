@@ -8,22 +8,14 @@ import androidx.lifecycle.SavedStateHandle
 import com.google.firebase.firestore.ListenerRegistration
 import edu.isel.pdm.li51xd.g08.drag.DragApplication
 import edu.isel.pdm.li51xd.g08.drag.R
-import edu.isel.pdm.li51xd.g08.drag.game.model.DrawGuess
-import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_CONFIGURATION_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_INFO_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_MODE_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_STATE_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.GameConfiguration
-import edu.isel.pdm.li51xd.g08.drag.game.model.GameState
-import edu.isel.pdm.li51xd.g08.drag.game.model.IS_SCHEDULED_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.Mode
+import edu.isel.pdm.li51xd.g08.drag.game.model.*
 import edu.isel.pdm.li51xd.g08.drag.game.model.Mode.OFFLINE
 import edu.isel.pdm.li51xd.g08.drag.game.model.Mode.ONLINE
-import edu.isel.pdm.li51xd.g08.drag.game.model.PLAYER_KEY
 import edu.isel.pdm.li51xd.g08.drag.game.remote.GameInfo
 import edu.isel.pdm.li51xd.g08.drag.game.remote.Player
 import edu.isel.pdm.li51xd.g08.drag.repo.WORDS_KEY
 import edu.isel.pdm.li51xd.g08.drag.utils.runDelayed
+import edu.isel.pdm.li51xd.g08.drag.utils.toValueList
 
 class DragResultsViewModel(app: Application, private val savedState: SavedStateHandle) : AndroidViewModel(app) {
     val game: GameState by lazy {
@@ -89,38 +81,58 @@ class DragResultsViewModel(app: Application, private val savedState: SavedStateH
         gameSubscription?.remove()
     }
 
+    fun createNextRound(hostId: String) {
+        if (hostId == this.player!!.id) {
+            app.repo.createGame(getNextRoundString(), gameInfo!!.players.toValueList().sortedBy { it.idx }, {})
+        }
+    }
+
+    fun getNextRoundString(): String {
+        var gameId = gameInfo!!.id
+        if (game.currRound > 1) {
+            gameId = gameId.substring(0, gameId.lastIndex - 1)
+        }
+        return "${gameId}-${game.currRound + 1}"
+    }
+
+    fun deleteRound(hostId: String?) {
+        if (hostId != null && hostId == player?.id) {
+            app.repo.deleteGame(gameInfo!!.id)
+        }
+    }
+
     fun exitGame() {
         if (gameMode == ONLINE) {
-            app.repo.exitGame(gameInfo!!.id, player!!)
+            app.repo.exitGame(gameInfo!!.id, gameInfo!!.players.getValue(player!!.id))
         }
     }
 
     fun getPlayers() : List<Player> {
         when(gameMode) {
-            OFFLINE -> return listOf(Player(app.resources.getString(R.string.localPlayer)))
-            ONLINE -> return gameInfo!!.players
+            OFFLINE -> return listOf(Player(name = app.resources.getString(R.string.localPlayer)))
+            ONLINE -> return gameInfo!!.players.toValueList().sortedBy { it.idx }
         }
     }
 
     fun updateCurrentDrawGuesses(playerId: String? = null, finishedGatheringListener: (() -> Unit)? = null) {
-        if (gameMode == OFFLINE) {
-            finishedGatheringListener?.invoke()
-            (currentDrawGuesses as MutableLiveData).value = game.drawGuesses
-        } else {
-            for (i in 0 until gameInfo!!.players.size) {
-                val player = gameInfo!!.players[i]
-                if (player.book.size != config.playerCount + 1) {
-                    return
-                }
-                if (player.id == this.player!!.id) {
-                    this.player = player
-                }
-                if (player.id == playerId) {
-                    (currentDrawGuesses as MutableLiveData).value = player.book
-                    return
+        when(gameMode) {
+            OFFLINE -> {
+                finishedGatheringListener?.invoke()
+                (currentDrawGuesses as MutableLiveData).value = game.drawGuesses
+            }
+            ONLINE -> {
+                if (playerId != null) {
+                    (currentDrawGuesses as MutableLiveData).value = gameInfo!!.players[playerId]?.book
+                } else {
+                    val players = gameInfo!!.players.toValueList()
+                    for (player in players) {
+                        if (player.book.size != config.playerCount + 1) {
+                            return
+                        }
+                    }
+                    finishedGatheringListener?.invoke()
                 }
             }
-            finishedGatheringListener?.invoke()
         }
     }
 }

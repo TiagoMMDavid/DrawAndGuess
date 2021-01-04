@@ -7,27 +7,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import com.google.firebase.firestore.ListenerRegistration
 import edu.isel.pdm.li51xd.g08.drag.DragApplication
-import edu.isel.pdm.li51xd.g08.drag.game.model.DrawGuess
-import edu.isel.pdm.li51xd.g08.drag.game.model.Drawing
-import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_CONFIGURATION_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_INFO_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_MODE_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_STATE_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.GameConfiguration
-import edu.isel.pdm.li51xd.g08.drag.game.model.GameState
-import edu.isel.pdm.li51xd.g08.drag.game.model.IS_SCHEDULED_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.Mode
-import edu.isel.pdm.li51xd.g08.drag.game.model.Mode.OFFLINE
-import edu.isel.pdm.li51xd.g08.drag.game.model.Mode.ONLINE
-import edu.isel.pdm.li51xd.g08.drag.game.model.Mode.valueOf
-import edu.isel.pdm.li51xd.g08.drag.game.model.PLAYER_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.Point
-import edu.isel.pdm.li51xd.g08.drag.game.model.Vector
-import edu.isel.pdm.li51xd.g08.drag.game.model.Word
+import edu.isel.pdm.li51xd.g08.drag.game.model.*
+import edu.isel.pdm.li51xd.g08.drag.game.model.Mode.*
 import edu.isel.pdm.li51xd.g08.drag.game.remote.GameInfo
 import edu.isel.pdm.li51xd.g08.drag.game.remote.Player
 import edu.isel.pdm.li51xd.g08.drag.repo.WORDS_KEY
 import edu.isel.pdm.li51xd.g08.drag.utils.runDelayed
+import edu.isel.pdm.li51xd.g08.drag.utils.toValueList
 
 class DragGameViewModel(app: Application, private val savedState: SavedStateHandle) : AndroidViewModel(app) {
 
@@ -57,9 +43,9 @@ class DragGameViewModel(app: Application, private val savedState: SavedStateHand
     var pendingRequest: (() -> Unit)? = null
 
     private val nextPlayerId: String by lazy {
-        val players = gameInfo.players
+        val players = gameInfo.players.toValueList().sortedBy { it.idx }
         var id: String? = null
-        for(i in 0 until players.size) {
+        for(i in players.indices) {
             if (players[i].id == player.id) {
                 id = if (i == players.size - 1) players[0].id
                 else players[i + 1].id

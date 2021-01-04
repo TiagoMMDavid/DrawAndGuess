@@ -5,7 +5,6 @@ import android.animation.ObjectAnimator
 import android.content.Intent
 import android.os.Bundle
 import android.os.CountDownTimer
-import android.util.Log
 import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.widget.ArrayAdapter
@@ -14,21 +13,10 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import edu.isel.pdm.li51xd.g08.drag.R.string
 import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityResultsBinding
-import edu.isel.pdm.li51xd.g08.drag.game.model.COUNTDOWN_INTERVAL
-import edu.isel.pdm.li51xd.g08.drag.game.model.COUNTDOWN_TIME_LEFT_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.DRAWGUESS_TIME
-import edu.isel.pdm.li51xd.g08.drag.game.model.DrawGuess
+import edu.isel.pdm.li51xd.g08.drag.game.model.*
 import edu.isel.pdm.li51xd.g08.drag.game.model.DrawGuess.DrawGuessType.DRAWING
 import edu.isel.pdm.li51xd.g08.drag.game.model.DrawGuess.DrawGuessType.WORD
-import edu.isel.pdm.li51xd.g08.drag.game.model.Drawing
-import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_CONFIGURATION_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_INFO_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_MODE_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_STATE_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.GameState
 import edu.isel.pdm.li51xd.g08.drag.game.model.Mode.ONLINE
-import edu.isel.pdm.li51xd.g08.drag.game.model.PLAYER_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.Word
 import edu.isel.pdm.li51xd.g08.drag.game.remote.GameInfo
 import edu.isel.pdm.li51xd.g08.drag.game.remote.Player
 import edu.isel.pdm.li51xd.g08.drag.repo.WORDS_KEY
@@ -70,7 +58,7 @@ class DragResultsActivity : AppCompatActivity() {
             putStringArrayListExtra(WORDS_KEY, viewModel.words)
             putExtra(GAME_MODE_KEY, viewModel.gameMode.name)
             if (viewModel.gameMode == ONLINE) {
-                putExtra(GAME_INFO_KEY, GameInfo("${viewModel.gameInfo!!.id}-${nextRound}",viewModel.gameInfo!!.players))
+                putExtra(GAME_INFO_KEY, GameInfo(viewModel.getNextRoundString(), viewModel.gameInfo!!.players))
                 putExtra(PLAYER_KEY, viewModel.player)
             }
         })
@@ -124,13 +112,11 @@ class DragResultsActivity : AppCompatActivity() {
     }
 
     private fun setUpLayout() {
-        if (isLastRound) {
-            binding.finishButton.setText(string.finishGame)
-            binding.finishButton.setOnClickListener {
-                viewModel.clearSubscription()
-                viewModel.exitGame()
-                finish()
-            }
+        binding.finishButton.setText(string.finishGame)
+        binding.finishButton.setOnClickListener {
+            viewModel.clearSubscription()
+            viewModel.exitGame()
+            finish()
         }
 
         binding.playerSelector.isEnabled = false
@@ -149,22 +135,26 @@ class DragResultsActivity : AppCompatActivity() {
     }
 
     private fun finishGathering() {
+        var id: String? = null
         if (viewModel.gameMode == ONLINE) {
             // Only enable the selector if we're online.
             binding.playerSelector.isEnabled = true
 
             // In offline mode, there's no need to update currentDrawGuesses
-            viewModel.updateCurrentDrawGuesses((binding.playerSelector.getItemAtPosition(0) as Player).id)
+            id = (binding.playerSelector.getItemAtPosition(0) as Player).id
+            viewModel.updateCurrentDrawGuesses(id)
+
+            if (!isLastRound) {
+                viewModel.createNextRound(id)
+            }
         }
 
         if (!isLastRound) {
-            //TODO: Create a new game WHEN ONLINE with the same id as in startGame for another round (use app.repo.createGame)
-
             binding.drawGuessTimer.visibility = View.VISIBLE
             startTimer(timeLeft)
             viewModel.scheduleWork(DRAWGUESS_TIME) {
                 viewModel.clearSubscription()
-                viewModel.exitGame()
+                viewModel.deleteRound(id)
                 startGame()
             }
         } else {

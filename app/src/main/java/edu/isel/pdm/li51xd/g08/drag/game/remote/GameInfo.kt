@@ -6,5 +6,5 @@ import kotlinx.android.parcel.Parcelize
 @Parcelize
 data class GameInfo (
     val id: String,
-    val players: MutableList<Player>
+    val players: Map<String, Player>
 ) : Parcelable
