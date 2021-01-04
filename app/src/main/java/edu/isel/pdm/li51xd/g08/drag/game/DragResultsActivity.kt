@@ -39,8 +39,9 @@ class DragResultsActivity : AppCompatActivity() {
     private var timeLeft: Long = DRAWGUESS_TIME
 
     private fun startTimer(time: Long) {
-        binding.drawGuessTimerProgress.max = DRAWGUESS_TIME.toInt()
-        binding.drawGuessTimerProgress.progress = DRAWGUESS_TIME.toInt()
+        // Set max progress to 1 second less in order to present the bar as full when the timer starts
+        binding.drawGuessTimerProgress.max = DRAWGUESS_TIME.toInt() - 1000
+        binding.drawGuessTimerProgress.progress = DRAWGUESS_TIME.toInt() - 1000
 
         timer = CountDownTimerAdapter(time, COUNTDOWN_INTERVAL) { millisUntilFinished ->
             timeLeft = millisUntilFinished

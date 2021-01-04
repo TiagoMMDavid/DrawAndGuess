@@ -7,7 +7,7 @@
             android:shape="ring"
             android:thicknessRatio="20.0"
             android:useLevel="false">
-            <solid android:color="@color/colorAccent" />
+            <solid android:color="@color/colorTimerBackground" />
         </shape>
     </item>
     <item android:id="@android:id/progress">
@@ -21,7 +21,7 @@
                 android:shape="ring"
                 android:thicknessRatio="20.0"
                 android:useLevel="true">
-                <solid android:color="@color/colorPrimary" />
+                <solid android:color="@color/colorTimerForeground" />
             </shape>
         </rotate>
     </item>
