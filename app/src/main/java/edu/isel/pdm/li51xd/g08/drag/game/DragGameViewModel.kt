@@ -6,16 +6,16 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import com.google.firebase.firestore.ListenerRegistration
-import edu.isel.pdm.li51xd.g08.drag.DragApplication
+import edu.isel.pdm.li51xd.g08.drag.*
 import edu.isel.pdm.li51xd.g08.drag.game.model.*
 import edu.isel.pdm.li51xd.g08.drag.game.model.Mode.*
-import edu.isel.pdm.li51xd.g08.drag.game.remote.GameInfo
-import edu.isel.pdm.li51xd.g08.drag.game.remote.Player
-import edu.isel.pdm.li51xd.g08.drag.repo.WORDS_KEY
+import edu.isel.pdm.li51xd.g08.drag.remote.model.GameInfo
 import edu.isel.pdm.li51xd.g08.drag.utils.runDelayed
 import edu.isel.pdm.li51xd.g08.drag.utils.toValueList
 
 class DragGameViewModel(app: Application, private val savedState: SavedStateHandle) : AndroidViewModel(app) {
+
+    private val app: DragApplication by lazy { getApplication<DragApplication>()}
 
     val game: GameState by lazy {
         savedState[GAME_STATE_KEY] ?: GameState()
@@ -29,16 +29,19 @@ class DragGameViewModel(app: Application, private val savedState: SavedStateHand
     val words: ArrayList<String> by lazy {
         savedState.get<ArrayList<String>>(WORDS_KEY) ?: throw IllegalArgumentException()
     }
-    private val app: DragApplication by lazy { getApplication<DragApplication>()}
 
-    val gameInfo: GameInfo by lazy {
-        savedState.get<GameInfo>(GAME_INFO_KEY) ?: throw IllegalArgumentException()
-    }
     val player: Player by lazy {
         savedState.get<Player>(PLAYER_KEY) ?: throw IllegalArgumentException()
     }
+    val gameInfo: GameInfo by lazy {
+        savedState.get<GameInfo>(GAME_INFO_KEY) ?: throw IllegalArgumentException()
+    }
+
+    val currentDrawGuess: LiveData<DrawGuess> by lazy {
+        MutableLiveData(savedState[CURR_DRAWGUESS_KEY])
+    }
+
     private var gameSubscription: ListenerRegistration? = null
-    val currentDrawGuess: LiveData<DrawGuess> = MutableLiveData()
     var currentBookOwnerId: String? = null
     var pendingRequest: (() -> Unit)? = null
 
@@ -74,9 +77,15 @@ class DragGameViewModel(app: Application, private val savedState: SavedStateHand
 
     fun startGame() {
         savedState[GAME_STATE_KEY] = game
+
+        game.currentDrawing.clear()
+        game.playCount = 0
+        player.book.clear()
+
         val startingWord = Word(words.removeAt(0))
+
         if (gameMode == OFFLINE) {
-            game.drawGuesses.add(startingWord)
+            player.book.add(startingWord)
         }
 
         game.state = GameState.State.DRAWING
@@ -90,6 +99,7 @@ class DragGameViewModel(app: Application, private val savedState: SavedStateHand
                     val request = {
                         currentBookOwnerId = it.bookOwnerId
                         (currentDrawGuess as MutableLiveData<DrawGuess>).value = it.drawGuess
+                        savedState[CURR_DRAWGUESS_KEY] = it.drawGuess
                     }
 
                     if (currentBookOwnerId == null) request()
@@ -98,13 +108,15 @@ class DragGameViewModel(app: Application, private val savedState: SavedStateHand
             currentBookOwnerId = player.id
             app.repo.addDrawGuessToBook(gameInfo.id, currentBookOwnerId!!, startingWord)
         }
+
         (currentDrawGuess as MutableLiveData<DrawGuess>).value = startingWord
+        savedState[CURR_DRAWGUESS_KEY] = startingWord
     }
 
     fun defineDrawing() {
         val currentDrawing = game.currentDrawing
         if (gameMode == OFFLINE) {
-            game.drawGuesses.add(currentDrawing)
+            player.book.add(currentDrawing.copy())
         }
 
         if (++game.playCount == config.playerCount) {
@@ -114,11 +126,13 @@ class DragGameViewModel(app: Application, private val savedState: SavedStateHand
                 app.repo.addDrawGuessToBook(gameInfo.id, currentBookOwnerId!!, currentDrawing)
             }
             (currentDrawGuess as MutableLiveData<DrawGuess>).value = null
+            savedState[CURR_DRAWGUESS_KEY] = null
         } else {
             game.state = GameState.State.GUESSING
             when(gameMode) {
                 OFFLINE -> {
                     (currentDrawGuess as MutableLiveData<DrawGuess>).value = currentDrawing
+                    savedState[CURR_DRAWGUESS_KEY] = currentDrawing
                 }
                 ONLINE -> {
                     app.repo.addDrawGuessToBook(gameInfo.id, currentBookOwnerId!!, currentDrawing)
@@ -134,9 +148,9 @@ class DragGameViewModel(app: Application, private val savedState: SavedStateHand
     fun defineGuess(word: String) {
         val wordGuess = Word(if (word.isBlank()) " " else word)
         if (gameMode == OFFLINE) {
-            game.drawGuesses.add(wordGuess)
+            player.book.add(wordGuess)
         }
-        game.currentDrawing = Drawing()
+        game.currentDrawing.clear()
 
         if (++game.playCount == config.playerCount) {
             game.state = GameState.State.RESULTS
@@ -144,11 +158,13 @@ class DragGameViewModel(app: Application, private val savedState: SavedStateHand
                 app.repo.addDrawGuessToBook(gameInfo.id, currentBookOwnerId!!, wordGuess)
             }
             (currentDrawGuess as MutableLiveData<DrawGuess>).value = null
+            savedState[CURR_DRAWGUESS_KEY] = null
         } else {
             game.state = GameState.State.DRAWING
             when(gameMode) {
                 OFFLINE -> {
                     (currentDrawGuess as MutableLiveData<DrawGuess>).value = wordGuess
+                    savedState[CURR_DRAWGUESS_KEY] = wordGuess
                 }
                 ONLINE -> {
                     app.repo.addDrawGuessToBook(gameInfo.id, currentBookOwnerId!!, wordGuess)
@@ -168,7 +184,11 @@ class DragGameViewModel(app: Application, private val savedState: SavedStateHand
     }
 
     fun addPointToModel(x: Float, y: Float) {
-        game.currentDrawing.vectors.last().points.add(Point(x, y))
+        if (game.currentDrawing.vectors.isEmpty()) {
+            addVectorToModel(x, y)
+        } else {
+            game.currentDrawing.vectors.last().points.add(Point(x, y))
+        }
     }
 
     fun getCurrentDrawing() : Drawing {

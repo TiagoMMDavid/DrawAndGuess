@@ -1,27 +1,23 @@
-package edu.isel.pdm.li51xd.g08.drag
+package edu.isel.pdm.li51xd.g08.drag.game
 
 import android.content.Intent
 import android.os.Bundle
 import android.view.View.*
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import edu.isel.pdm.li51xd.g08.drag.*
 import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityConfigureBinding
-import edu.isel.pdm.li51xd.g08.drag.game.DragGameActivity
-import edu.isel.pdm.li51xd.g08.drag.game.model.*
-import edu.isel.pdm.li51xd.g08.drag.lobbies.DragLobbyActivity
-import edu.isel.pdm.li51xd.g08.drag.repo.WORDS_KEY
+import edu.isel.pdm.li51xd.g08.drag.game.model.GameConfiguration
+import edu.isel.pdm.li51xd.g08.drag.game.model.Mode
+import edu.isel.pdm.li51xd.g08.drag.game.model.Player
+import edu.isel.pdm.li51xd.g08.drag.remote.DragLobbyActivity
 import edu.isel.pdm.li51xd.g08.drag.utils.EditTextNoEnter
 
 class DragConfigureActivity : AppCompatActivity() {
+
     private val binding: ActivityConfigureBinding by lazy { ActivityConfigureBinding.inflate(layoutInflater) }
-
-    private val gameMode: Mode by lazy {
-        Mode.valueOf(intent.getStringExtra(GAME_MODE_KEY) ?: throw IllegalArgumentException())
-    }
-
-    private val playerName: String by lazy {
-        intent.getStringExtra(PLAYER_NAME_KEY) ?: throw IllegalArgumentException()
-    }
+    private val viewModel: DragConfigureViewModel by viewModels()
 
     private fun setUpLayout(savedInstanceState: Bundle?) {
         binding.playerCount.maxValue = MAX_PLAYERS
@@ -35,7 +31,7 @@ class DragConfigureActivity : AppCompatActivity() {
             binding.roundCount.value = config.roundCount
         }
 
-        when (gameMode) {
+        when (viewModel.gameMode) {
             Mode.OFFLINE -> {
                 binding.lobbyName.visibility = INVISIBLE
             }
@@ -45,13 +41,12 @@ class DragConfigureActivity : AppCompatActivity() {
         }
 
         binding.startGameButton.setOnClickListener {
-            if (gameMode == Mode.ONLINE && binding.lobbyName.text.isBlank()) {
+            if (viewModel.gameMode == Mode.ONLINE && binding.lobbyName.text.isBlank()) {
                 Toast.makeText(this, R.string.errorNoLobbyName, Toast.LENGTH_LONG).show()
             } else {
                 binding.startGameButton.isEnabled = false
                 binding.loadingLobby.visibility = VISIBLE
-                val app = application as DragApplication
-                app.repo.fetchRandomWords(binding.roundCount.value).observe(this) {
+                viewModel.fetchRandomWords(binding.roundCount.value).observe(this) {
                     if (it.isSuccess) {
                         startGameOrLobby(ArrayList(it.getOrThrow()))
                     } else {
@@ -66,22 +61,23 @@ class DragConfigureActivity : AppCompatActivity() {
 
     private fun startGameOrLobby(words: ArrayList<String>) {
         val config = GameConfiguration(binding.playerCount.value, binding.roundCount.value)
-        when (gameMode) {
+        when (viewModel.gameMode) {
             Mode.OFFLINE -> {
                 startActivity(Intent(this, DragGameActivity::class.java).apply {
-                    putExtra(GAME_CONFIGURATION_KEY, config)
                     putExtra(GAME_MODE_KEY, Mode.OFFLINE.name)
+                    putExtra(GAME_CONFIGURATION_KEY, config)
+                    putExtra(PLAYER_KEY, Player(name = getString(R.string.localPlayer)))
                     putStringArrayListExtra(WORDS_KEY, words)
                 })
                 finish()
             }
             Mode.ONLINE -> {
-                (application as DragApplication).repo.createLobby(binding.lobbyName.text.toString(), playerName, config,
+                viewModel.createLobby(binding.lobbyName.text.toString(), config,
                     { lobby, player ->
                         startActivity(Intent(this, DragLobbyActivity::class.java).apply {
                             putExtra(LOBBY_INFO_KEY, lobby)
-                            putStringArrayListExtra(WORDS_KEY, words)
                             putExtra(PLAYER_KEY, player)
+                            putStringArrayListExtra(WORDS_KEY, words)
                         })
                         finish()
                     },

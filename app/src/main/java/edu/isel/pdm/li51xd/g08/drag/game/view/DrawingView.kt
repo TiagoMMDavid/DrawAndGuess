@@ -95,6 +95,10 @@ class DrawingView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                     newVectorListener?.onNewVector(event.x / viewWidth, event.y / viewHeight)
                 }
                 MotionEvent.ACTION_MOVE -> {
+                    if (currPath.isEmpty) {
+                        currPath.moveTo(event.x, event.y)
+                    }
+
                     currPath.lineTo(event.x, event.y)
                     newPointListener?.onNewPoint(event.x / viewWidth, event.y / viewHeight)
                 }

@@ -1,4 +1,4 @@
-package edu.isel.pdm.li51xd.g08.drag.game.remote
+package edu.isel.pdm.li51xd.g08.drag.remote.model
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import edu.isel.pdm.li51xd.g08.drag.game.model.DrawGuess
@@ -11,13 +11,13 @@ import edu.isel.pdm.li51xd.g08.drag.game.model.Word
 
 data class DrawGuessDto(val type: String, val word: String?, val drawing: List<String>?) {
     fun toDrawGuess(mapper: ObjectMapper): DrawGuess {
-        when(DrawGuessType.valueOf(this.type)) {
+        return when(DrawGuessType.valueOf(this.type)) {
             DRAWING -> {
                 val vectors = mutableListOf<Vector>()
                 drawing!!.forEach { vectors.add(mapper.readValue(it, Vector::class.java)) }
-                return Drawing(vectors)
+                Drawing(vectors)
             }
-            WORD -> return Word(word!!)
+            WORD -> Word(word!!)
         }
     }
 }

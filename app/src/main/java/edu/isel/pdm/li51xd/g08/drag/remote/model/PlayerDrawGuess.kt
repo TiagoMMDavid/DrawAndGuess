@@ -1,4 +1,4 @@
-package edu.isel.pdm.li51xd.g08.drag.game.remote
+package edu.isel.pdm.li51xd.g08.drag.remote.model
 
 import android.os.Parcelable
 import com.fasterxml.jackson.databind.ObjectMapper

@@ -4,9 +4,9 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityLauncherBinding
-import edu.isel.pdm.li51xd.g08.drag.game.model.GAME_MODE_KEY
+import edu.isel.pdm.li51xd.g08.drag.game.DragConfigureActivity
 import edu.isel.pdm.li51xd.g08.drag.game.model.Mode
-import edu.isel.pdm.li51xd.g08.drag.lobbies.list.DragListGamesActivity
+import edu.isel.pdm.li51xd.g08.drag.remote.DragListGamesActivity
 
 class DragLauncherActivity : AppCompatActivity() {
     private val binding: ActivityLauncherBinding by lazy { ActivityLauncherBinding.inflate(layoutInflater) }

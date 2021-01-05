@@ -14,9 +14,9 @@
         android:roundIcon="@mipmap/launcher_icon_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".lobbies.DragLobbyActivity"></activity>
+        <activity android:name=".remote.DragLobbyActivity"></activity>
         <activity
-            android:name=".lobbies.list.DragListGamesActivity"
+            android:name=".remote.DragListGamesActivity"
             android:windowSoftInputMode="adjustPan" />
         <activity android:name=".DragLauncherActivity">
             <intent-filter>
@@ -27,7 +27,7 @@
         </activity>
         <activity android:name=".game.DragResultsActivity" />
         <activity android:name=".game.DragGameActivity" />
-        <activity android:name=".DragConfigureActivity" />
+        <activity android:name=".game.DragConfigureActivity" />
     </application>
 
 </manifest>

@@ -1,8 +1,8 @@
-package edu.isel.pdm.li51xd.g08.drag.game.remote
+package edu.isel.pdm.li51xd.g08.drag.game.model
 
 import android.os.Parcelable
 import com.fasterxml.jackson.databind.ObjectMapper
-import edu.isel.pdm.li51xd.g08.drag.game.model.DrawGuess
+import edu.isel.pdm.li51xd.g08.drag.remote.model.PlayerDto
 import kotlinx.android.parcel.Parcelize
 import java.util.*
 
@@ -13,8 +13,4 @@ data class Player(val idx: Int = 0, val id: String = UUID.randomUUID().toString(
     override fun toString(): String {
         return name
     }
-}
-
-data class PlayerDto(val idx: Int, val id: String, val name: String, val book: List<DrawGuessDto>) {
-    fun toPlayer(mapper: ObjectMapper) = Player(idx, id, name, book.map { it.toDrawGuess(mapper) }.toMutableList())
 }

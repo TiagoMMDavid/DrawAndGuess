@@ -13,7 +13,9 @@ import com.google.firebase.ktx.Firebase
 import edu.isel.pdm.li51xd.g08.drag.BuildConfig
 import edu.isel.pdm.li51xd.g08.drag.game.model.DrawGuess
 import edu.isel.pdm.li51xd.g08.drag.game.model.GameConfiguration
-import edu.isel.pdm.li51xd.g08.drag.game.remote.*
+import edu.isel.pdm.li51xd.g08.drag.game.model.Player
+import edu.isel.pdm.li51xd.g08.drag.remote.*
+import edu.isel.pdm.li51xd.g08.drag.remote.model.*
 
 private const val LOBBIES_COLLECTION = "lobbies"
 private const val GAMES_COLLECTION = "games"
@@ -184,6 +186,10 @@ class DragRepository(private val queue: RequestQueue, private val mapper: Object
         document
                 .get()
                 .addOnSuccessListener {
+                    if (!it.exists()) {
+                        return@addOnSuccessListener
+                    }
+
                     val lobby = it.toLobbyInfo(mapper)
                     if (lobby.players.size == 1) {
                         document.delete()
@@ -217,26 +223,57 @@ class DragRepository(private val queue: RequestQueue, private val mapper: Object
             .delete()
     }
 
-    fun subscribeToLobby(lobbyId: String,
-        onSubscriptionError: (Exception) -> Unit,
-        onStateChange: (LobbyInfo) -> Unit) : ListenerRegistration {
-        return Firebase.firestore
+    fun subscribeToLobby(lobbyId: String, player: Player,
+                         onSubscriptionError: (Exception) -> Unit,
+                         onStateChange: (LobbyInfo?) -> Unit) : ListenerRegistration {
+        val doc = Firebase.firestore
             .collection(LOBBIES_COLLECTION)
             .document(lobbyId)
+
+        return doc
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
                     onSubscriptionError(error)
                     return@addSnapshotListener
                 }
+
                 if (snapshot?.exists() == true) {
-                    onStateChange(snapshot.toLobbyInfo(mapper))
+                    val lobby = snapshot.toLobbyInfo(mapper)
+                    val players = lobby.players
+
+                    if (!players.contains(player)) {
+                        // If the player is not inside game
+                        onStateChange(null)
+                        return@addSnapshotListener
+                    }
+
+                    if (players.size == lobby.gameConfig.playerCount) {
+                        doc.delete().addOnSuccessListener {
+                            createGame(lobbyId, players) { onStateChange(lobby) }
+                        }
+                    } else {
+                        if (players.first().id == player.id && players.size > lobby.gameConfig.playerCount) {
+                            for (i in players.size - 1 downTo lobby.gameConfig.playerCount) {
+                                // Remove extra players
+                                val toRemove = players[i]
+                                doc.update(
+                                    LOBBY_PLAYERS,
+                                    FieldValue.arrayRemove(
+                                        mapper.writeValueAsString(toRemove.toDto(mapper))
+                                    )
+                                )
+                                players.remove(toRemove)
+                            }
+                        }
+                        onStateChange(lobby)
+                    }
                 }
             }
     }
 
-    fun subscribeToGame(gameId: String,
-                         onSubscriptionError: (Exception) -> Unit,
-                         onStateChange: (GameInfo) -> Unit) : ListenerRegistration {
+    fun subscribeToGame(gameId: String, playerId: String,
+                        onSubscriptionError: (Exception) -> Unit,
+                        onStateChange: (GameInfo?) -> Unit) : ListenerRegistration {
         return Firebase.firestore
                 .collection(GAMES_COLLECTION)
                 .document(gameId)
@@ -245,8 +282,14 @@ class DragRepository(private val queue: RequestQueue, private val mapper: Object
                         onSubscriptionError(error)
                         return@addSnapshotListener
                     }
+
                     if (snapshot?.exists() == true) {
-                        onStateChange(snapshot.toGameInfo(mapper))
+                        val game = snapshot.toGameInfo(mapper)
+                        if (game.players.containsKey(playerId)) {
+                            onStateChange(game)
+                        } else {
+                            onStateChange(null)
+                        }
                     }
                 }
     }

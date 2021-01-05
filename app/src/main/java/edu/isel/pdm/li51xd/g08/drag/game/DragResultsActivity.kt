@@ -11,15 +11,18 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import edu.isel.pdm.li51xd.g08.drag.*
 import edu.isel.pdm.li51xd.g08.drag.R.string
 import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityResultsBinding
-import edu.isel.pdm.li51xd.g08.drag.game.model.*
+import edu.isel.pdm.li51xd.g08.drag.game.model.DrawGuess
 import edu.isel.pdm.li51xd.g08.drag.game.model.DrawGuess.DrawGuessType.DRAWING
 import edu.isel.pdm.li51xd.g08.drag.game.model.DrawGuess.DrawGuessType.WORD
+import edu.isel.pdm.li51xd.g08.drag.game.model.Drawing
+import edu.isel.pdm.li51xd.g08.drag.game.model.GameState.State.DEFINING
 import edu.isel.pdm.li51xd.g08.drag.game.model.Mode.ONLINE
-import edu.isel.pdm.li51xd.g08.drag.game.remote.GameInfo
-import edu.isel.pdm.li51xd.g08.drag.game.remote.Player
-import edu.isel.pdm.li51xd.g08.drag.repo.WORDS_KEY
+import edu.isel.pdm.li51xd.g08.drag.game.model.Player
+import edu.isel.pdm.li51xd.g08.drag.game.model.Word
+import edu.isel.pdm.li51xd.g08.drag.remote.model.GameInfo
 import edu.isel.pdm.li51xd.g08.drag.utils.CountDownTimerAdapter
 import edu.isel.pdm.li51xd.g08.drag.utils.OnItemSelectedListenerAdapter
 
@@ -29,6 +32,7 @@ private const val INDEX_BAR_ANIMATION_SMOOTHNESS = 100 // Can be seen as frames 
 private const val INDEX_BAR_ANIMATION_DURATION = 250L
 
 class DragResultsActivity : AppCompatActivity() {
+
     private val binding: ActivityResultsBinding by lazy { ActivityResultsBinding.inflate(layoutInflater) }
     private val viewModel: DragResultsViewModel by viewModels()
 
@@ -36,12 +40,12 @@ class DragResultsActivity : AppCompatActivity() {
 
     private var currResultIndex = 0
     private var timer: CountDownTimer? = null
-    private var timeLeft: Long = DRAWGUESS_TIME
+    private var timeLeft: Long = RESULTS_TIME
 
     private fun startTimer(time: Long) {
         // Set max progress to 1 second less in order to present the bar as full when the timer starts
-        binding.drawGuessTimerProgress.max = DRAWGUESS_TIME.toInt() - 1000
-        binding.drawGuessTimerProgress.progress = DRAWGUESS_TIME.toInt() - 1000
+        binding.drawGuessTimerProgress.max = RESULTS_TIME.toInt() - 1000
+        binding.drawGuessTimerProgress.progress = RESULTS_TIME.toInt() - 1000
 
         timer = CountDownTimerAdapter(time, COUNTDOWN_INTERVAL) { millisUntilFinished ->
             timeLeft = millisUntilFinished
@@ -52,16 +56,16 @@ class DragResultsActivity : AppCompatActivity() {
     }
 
     private fun startGame() {
-        val nextRound = viewModel.game.currRound + 1
         startActivity(Intent(this, DragGameActivity::class.java).apply {
-            putExtra(GAME_STATE_KEY, GameState(currRound = nextRound))
-            putExtra(GAME_CONFIGURATION_KEY, viewModel.config)
-            putStringArrayListExtra(WORDS_KEY, viewModel.words)
-            putExtra(GAME_MODE_KEY, viewModel.gameMode.name)
             if (viewModel.gameMode == ONLINE) {
-                putExtra(GAME_INFO_KEY, GameInfo(viewModel.getNextRoundString(), viewModel.gameInfo!!.players))
-                putExtra(PLAYER_KEY, viewModel.player)
+                putExtra(GAME_INFO_KEY, GameInfo(viewModel.getNextRoundId(), viewModel.gameInfo!!.players))
             }
+            putExtra(GAME_MODE_KEY, viewModel.gameMode.name)
+            putExtra(GAME_CONFIGURATION_KEY, viewModel.config)
+            putExtra(GAME_STATE_KEY, viewModel.game.apply { ++currRound; state = DEFINING })
+
+            putExtra(PLAYER_KEY, viewModel.player)
+            putStringArrayListExtra(WORDS_KEY, viewModel.words)
         })
         finish()
     }
@@ -112,7 +116,7 @@ class DragResultsActivity : AppCompatActivity() {
         drawResult(drawGuessList[currResultIndex])
     }
 
-    private fun setUpLayout() {
+    private fun setupLayout() {
         binding.finishButton.setText(string.finishGame)
         binding.finishButton.setOnClickListener {
             viewModel.clearSubscription()
@@ -120,7 +124,7 @@ class DragResultsActivity : AppCompatActivity() {
             finish()
         }
 
-        binding.playerSelector.isEnabled = false
+        binding.playerSelector.isEnabled = viewModel.currentDrawGuesses.value != null && viewModel.gameMode == ONLINE
         binding.playerSelector.adapter = ArrayAdapter(this, layout.simple_spinner_dropdown_item, viewModel.getPlayers())
         binding.playerSelector.onItemSelectedListener = OnItemSelectedListenerAdapter<Player> {
             if (binding.playerSelector.isEnabled) {
@@ -133,6 +137,22 @@ class DragResultsActivity : AppCompatActivity() {
         binding.drawing.isEnabled = false
 
         drawResult(Word(getString(string.resultsWaiting)))
+    }
+
+    private fun setupTimerAndButton(id: String? = null) {
+        if (!isLastRound) {
+            binding.drawGuessTimer.visibility = View.VISIBLE
+            startTimer(timeLeft)
+            if (id != null) {
+                viewModel.scheduleWork(RESULTS_TIME) {
+                    viewModel.clearSubscription()
+                    viewModel.deleteRound(id)
+                    startGame()
+                }
+            }
+        } else {
+            binding.finishButton.visibility = View.VISIBLE
+        }
     }
 
     private fun finishGathering() {
@@ -150,29 +170,19 @@ class DragResultsActivity : AppCompatActivity() {
             }
         }
 
-        if (!isLastRound) {
-            binding.drawGuessTimer.visibility = View.VISIBLE
-            startTimer(timeLeft)
-            viewModel.scheduleWork(DRAWGUESS_TIME) {
-                viewModel.clearSubscription()
-                viewModel.deleteRound(id)
-                startGame()
-            }
-        } else {
-            binding.finishButton.visibility = View.VISIBLE
-        }
+        setupTimerAndButton(id)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        timeLeft = savedInstanceState?.getLong(COUNTDOWN_TIME_LEFT_KEY, DRAWGUESS_TIME) ?: DRAWGUESS_TIME
+        timeLeft = savedInstanceState?.getLong(COUNTDOWN_TIME_LEFT_KEY, RESULTS_TIME) ?: RESULTS_TIME
         isLastRound = viewModel.game.currRound == viewModel.config.roundCount
 
         if (savedInstanceState != null)
             currResultIndex = savedInstanceState.getInt(RESULT_INDEX_KEY)
 
-        setUpLayout()
+        setupLayout()
         viewModel.currentDrawGuesses.observe(this) {
             if (it == null) {
                 Toast.makeText(this, string.errorGetResults, Toast.LENGTH_LONG).show()
@@ -181,8 +191,12 @@ class DragResultsActivity : AppCompatActivity() {
             }
         }
 
-        viewModel.gatherResults {
-            finishGathering()
+        if (viewModel.currentDrawGuesses.value == null) {
+            viewModel.gatherResults {
+                finishGathering()
+            }
+        } else {
+            setupTimerAndButton()
         }
     }
 

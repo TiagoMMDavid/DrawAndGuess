@@ -1,11 +1,11 @@
-package edu.isel.pdm.li51xd.g08.drag.lobbies.list.view
+package edu.isel.pdm.li51xd.g08.drag.remote.view
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import edu.isel.pdm.li51xd.g08.drag.R
-import edu.isel.pdm.li51xd.g08.drag.game.remote.LobbyInfo
+import edu.isel.pdm.li51xd.g08.drag.remote.model.LobbyInfo
 
 class GameViewHolder(private val view: ViewGroup) : RecyclerView.ViewHolder(view) {
 
@@ -24,8 +24,8 @@ class GameViewHolder(private val view: ViewGroup) : RecyclerView.ViewHolder(view
 }
 
 class GamesListAdapter(
-        private val contents: List<LobbyInfo>,
-        private val itemSelectedListener: (LobbyInfo) -> Unit) :
+    private val contents: List<LobbyInfo>,
+    private val itemSelectedListener: (LobbyInfo) -> Unit) :
     RecyclerView.Adapter<GameViewHolder>() {
 
     override fun onBindViewHolder(holder: GameViewHolder, position: Int) {

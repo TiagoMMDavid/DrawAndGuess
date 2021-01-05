@@ -1,4 +1,4 @@
-package edu.isel.pdm.li51xd.g08.drag.lobbies.list
+package edu.isel.pdm.li51xd.g08.drag.remote
 
 import android.content.Intent
 import android.os.Bundle
@@ -8,13 +8,11 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import edu.isel.pdm.li51xd.g08.drag.DragConfigureActivity
-import edu.isel.pdm.li51xd.g08.drag.R
+import edu.isel.pdm.li51xd.g08.drag.*
 import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityListBinding
-import edu.isel.pdm.li51xd.g08.drag.game.model.*
-import edu.isel.pdm.li51xd.g08.drag.lobbies.DragLobbyActivity
-import edu.isel.pdm.li51xd.g08.drag.lobbies.list.view.GamesListAdapter
-import edu.isel.pdm.li51xd.g08.drag.repo.WORDS_KEY
+import edu.isel.pdm.li51xd.g08.drag.game.DragConfigureActivity
+import edu.isel.pdm.li51xd.g08.drag.game.model.Mode
+import edu.isel.pdm.li51xd.g08.drag.remote.view.GamesListAdapter
 import edu.isel.pdm.li51xd.g08.drag.utils.EditTextNoEnter
 
 class DragListGamesActivity : AppCompatActivity() {
@@ -65,8 +63,8 @@ class DragListGamesActivity : AppCompatActivity() {
             if (lobby != null) {
                 startActivity(Intent(this, DragLobbyActivity::class.java).apply {
                     putExtra(LOBBY_INFO_KEY, lobby)
-                    putStringArrayListExtra(WORDS_KEY, viewModel.words)
                     putExtra(PLAYER_KEY, viewModel.player)
+                    putStringArrayListExtra(WORDS_KEY, viewModel.words)
                 })
             }
             binding.createGameButton.isEnabled = true

@@ -8,6 +8,8 @@ import edu.isel.pdm.li51xd.g08.drag.repo.DragRepository
 
 class DragApplication : Application() {
     val repo by lazy {
-        DragRepository(Volley.newRequestQueue(this), jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false))
+        DragRepository(Volley.newRequestQueue(this),
+            jacksonObjectMapper()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false))
     }
 }
