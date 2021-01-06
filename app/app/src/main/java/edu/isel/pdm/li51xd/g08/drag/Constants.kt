@@ -26,13 +26,13 @@ const val WORDS_KEY = "DRAG.Words"
 /**
  * Configurations
  */
-const val MIN_PLAYERS = 2
+const val MIN_PLAYERS = 5
 const val MAX_PLAYERS = 10
 
 const val MIN_ROUNDS = 1
 const val MAX_ROUNDS = 10
 
-const val DRAWGUESS_TIME = 10000L
-const val RESULTS_TIME = 15000L
+const val DRAWGUESS_TIME = 60000L
+const val RESULTS_TIME = 60000L
 const val LOBBY_COUNTDOWN_TIME = 5000L
 const val COUNTDOWN_INTERVAL = 1000L
