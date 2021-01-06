@@ -29,5 +29,6 @@
     <string name="errorCreateLobby">Erro na criação da sala!</string>
     <string name="errorJoinLobby">Erro ao juntar-se à sala! Por favor tente novamente.</string>
     <string name="errorWordnik">Erro na busca de palavras!</string>
+    <string name="errorInGame">Um erro ocorreu durante o jogo!</string>
     <string name="errorGetResults">Erro ao obter resultados!</string>
 </resources>

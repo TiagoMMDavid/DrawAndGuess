@@ -23,7 +23,14 @@ class DragLobbyViewModel(application: Application, private val savedState: Saved
     }
 
     val lobbyInfo: LiveData<LobbyInfo> by lazy { MutableLiveData(savedState.get(LOBBY_INFO_KEY)!!) }
-    val gameInfo: LiveData<GameInfo> = MutableLiveData()
+    val gameInfo: LiveData<GameInfo?> by lazy {
+        val liveData = if (savedState.contains(GAME_INFO_KEY)) {
+            MutableLiveData(savedState.get<GameInfo>(GAME_INFO_KEY))
+        } else {
+            MutableLiveData()
+        }
+        liveData
+    }
 
     private val lobbySubscription = app.repo.subscribeToLobby(
         lobbyInfo.value!!.id, player,
@@ -32,10 +39,14 @@ class DragLobbyViewModel(application: Application, private val savedState: Saved
     )
     private val gameSubscription = app.repo.subscribeToGame(
         lobbyInfo.value!!.id, player.id,
-        onSubscriptionError = { (gameInfo as MutableLiveData<GameInfo>).value = null },
+        onSubscriptionError = {
+            savedState[GAME_INFO_KEY] = null
+            (gameInfo as MutableLiveData<GameInfo?>).value = null
+        },
         onStateChange = {
             clearSubscriptions()
-            (gameInfo as MutableLiveData<GameInfo>).value = it
+            savedState[GAME_INFO_KEY] = it
+            (gameInfo as MutableLiveData<GameInfo?>).value = it
         }
     )
 

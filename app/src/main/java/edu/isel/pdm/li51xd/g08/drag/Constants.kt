@@ -7,6 +7,9 @@ const val GAME_MODE_KEY = "DRAG.GameMode"
 const val GAME_CONFIGURATION_KEY = "DRAG.GameConfiguration"
 const val GAME_STATE_KEY = "DRAG.GameState"
 const val CURR_DRAWGUESS_KEY = "DRAG.CurrDrawGuess"
+const val CURR_BOOK_OWNER_KEY = "DRAG.CurrBookOwner"
+const val PENDING_DRAWGUESS_KEY = "DRAG.PendingDrawGuess"
+
 
 const val GAME_INFO_KEY = "DRAG.GameInfo"
 const val LOBBY_INFO_KEY = "DRAG.LobbyInfo"
@@ -23,7 +26,7 @@ const val WORDS_KEY = "DRAG.Words"
 /**
  * Configurations
  */
-const val MIN_PLAYERS = 5
+const val MIN_PLAYERS = 2
 const val MAX_PLAYERS = 10
 
 const val MIN_ROUNDS = 1

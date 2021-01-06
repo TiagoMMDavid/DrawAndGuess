@@ -200,15 +200,19 @@ class DragRepository(private val queue: RequestQueue, private val mapper: Object
                 }
     }
 
-    fun exitGame(gameId: String, player: Player) {
+    fun exitGame(gameId: String, player: Player, forceDelete: Boolean = false) {
         val document = Firebase.firestore
             .collection(GAMES_COLLECTION)
             .document(gameId)
         document
             .get()
             .addOnSuccessListener {
+                if (!it.exists()) {
+                    return@addOnSuccessListener
+                }
+
                 val game = it.toGameInfo(mapper)
-                if (game.players.size == 1) {
+                if (game.players.size == 1 || forceDelete) {
                     document.delete()
                 } else {
                     document.update(hashMapOf<String, Any>(player.id to FieldValue.delete()))
@@ -328,10 +332,12 @@ class DragRepository(private val queue: RequestQueue, private val mapper: Object
             .collection(GAMES_COLLECTION)
             .document(gameId)
         doc.get().addOnSuccessListener {
-            val gameInfo = it.toGameInfo(mapper)
-            val player = gameInfo.players[bookOwnerId]
-            player!!.book.add(drawGuess)
-            doc.update(bookOwnerId, mapper.writeValueAsString(player.toDto(mapper)))
+            if (it.exists()) {
+                val gameInfo = it.toGameInfo(mapper)
+                val player = gameInfo.players[bookOwnerId]
+                player!!.book.add(drawGuess)
+                doc.update(bookOwnerId, mapper.writeValueAsString(player.toDto(mapper)))
+            }
         }
     }
 }

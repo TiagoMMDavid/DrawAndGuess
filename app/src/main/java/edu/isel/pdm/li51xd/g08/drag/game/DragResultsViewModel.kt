@@ -34,7 +34,13 @@ class DragResultsViewModel(app: Application, private val savedState: SavedStateH
     var player: Player = savedState.get<Player>(PLAYER_KEY)!!
     var gameInfo: GameInfo? = savedState.get<GameInfo>(GAME_INFO_KEY)
 
-    var currentDrawGuesses: LiveData<List<DrawGuess>> = MutableLiveData()
+    var currentDrawGuesses: LiveData<List<DrawGuess>> =
+        if (savedState.contains(CURR_DRAWGUESS_KEY)) {
+            MutableLiveData(savedState.get(CURR_DRAWGUESS_KEY))
+        } else {
+            MutableLiveData()
+        }
+
     private var gameSubscription: ListenerRegistration? = null
 
     private var isScheduled: Boolean = savedState[IS_SCHEDULED_KEY] ?: false
@@ -63,12 +69,13 @@ class DragResultsViewModel(app: Application, private val savedState: SavedStateH
                 gameSubscription = gameSubscription ?: app.repo.subscribeToGame(
                     gameInfo!!.id, player.id,
                     onSubscriptionError = {
+                        savedState[CURR_DRAWGUESS_KEY] = null
                         (currentDrawGuesses as MutableLiveData<List<DrawGuess>>).value = null
                     }, onStateChange = {
                         val value = (currentDrawGuesses as MutableLiveData).value
                         if (value == null) {
-                            this.gameInfo = it
                             savedState[GAME_INFO_KEY] = it
+                            this.gameInfo = it
                             updateCurrentDrawGuesses {
                                 finishedGatheringListener()
                             }
@@ -119,11 +126,14 @@ class DragResultsViewModel(app: Application, private val savedState: SavedStateH
         when(gameMode) {
             OFFLINE -> {
                 finishedGatheringListener?.invoke()
+                savedState[CURR_DRAWGUESS_KEY] = player.book
                 (currentDrawGuesses as MutableLiveData).value = player.book
             }
             ONLINE -> {
                 if (playerId != null) {
-                    (currentDrawGuesses as MutableLiveData).value = gameInfo!!.players[playerId]?.book
+                    val book = gameInfo!!.players[playerId]?.book
+                    savedState[CURR_DRAWGUESS_KEY] = book
+                    (currentDrawGuesses as MutableLiveData).value = book
                 } else {
                     val players = gameInfo!!.players.toValueList()
                     for (player in players) {

@@ -3,7 +3,9 @@ package edu.isel.pdm.li51xd.g08.drag.game
 import android.content.Intent
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.util.Log
 import android.view.View.VISIBLE
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import edu.isel.pdm.li51xd.g08.drag.*
@@ -90,7 +92,7 @@ class DragGameActivity : AppCompatActivity() {
         finish()
     }
 
-    private fun updateActivity(drawGuess: DrawGuess?) {
+    private fun updateActivity(drawGuess: DrawGuess) {
         when (viewModel.game.state) {
             DEFINING -> viewModel.startGame()
             DRAWING -> drawDrawing(drawGuess as Word)
@@ -118,11 +120,18 @@ class DragGameActivity : AppCompatActivity() {
         }
 
         viewModel.currentDrawGuess.observe(this) { drawGuess ->
-            updateActivity(drawGuess)
+            if (drawGuess == null) {
+                Toast.makeText(this, getString(string.errorInGame), Toast.LENGTH_LONG).show()
+                finish()
+            } else {
+                updateActivity(drawGuess)
+            }
         }
 
         if (viewModel.game.state == DEFINING) {
             viewModel.startGame()
+        } else {
+            viewModel.subscribeIfNeeded()
         }
     }
 
@@ -130,5 +139,10 @@ class DragGameActivity : AppCompatActivity() {
         super.onSaveInstanceState(outState)
         outState.putLong(COUNTDOWN_TIME_LEFT_KEY, timeLeft)
         timer?.cancel()
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        viewModel.exitGame()
     }
 }

@@ -9,6 +9,7 @@ import edu.isel.pdm.li51xd.g08.drag.DragApplication
 import edu.isel.pdm.li51xd.g08.drag.R
 import edu.isel.pdm.li51xd.g08.drag.game.model.Player
 import edu.isel.pdm.li51xd.g08.drag.remote.model.LobbyInfo
+import java.util.concurrent.Executors
 
 class DragListGamesViewModel(app: Application) : AndroidViewModel(app) {
 
@@ -20,16 +21,15 @@ class DragListGamesViewModel(app: Application) : AndroidViewModel(app) {
     val lobbies: LiveData<List<LobbyInfo>> = MutableLiveData()
     val joinedLobby: LiveData<LobbyInfo> = MutableLiveData()
 
+    val executor = Executors.newSingleThreadExecutor()
+
     fun fetchLobbies() {
         (joinedLobby as MutableLiveData<LobbyInfo>).value = null
-        app.repo.fetchLobbies(
-            {
-                (lobbies as MutableLiveData<List<LobbyInfo>>).value = it
-            },
-            {
-                Toast.makeText(app, R.string.errorGetLobbies, Toast.LENGTH_LONG).show()
-            }
-        )
+        app.repo.fetchLobbies({
+            (lobbies as MutableLiveData<List<LobbyInfo>>).value = it
+        }, {
+            Toast.makeText(app, R.string.errorGetLobbies, Toast.LENGTH_LONG).show()
+        })
     }
 
     fun tryJoinLobby(id: String, playerName: String, roundCount: Int) {

@@ -29,5 +29,6 @@
     <string name="errorCreateLobby">Failed to create lobby!</string>
     <string name="errorJoinLobby">Failed to join lobby! Please try again.</string>
     <string name="errorWordnik">Failed to get words!</string>
+    <string name="errorInGame">An error occurred while in game!</string>
     <string name="errorGetResults">Error while gathering results!</string>
 </resources>

@@ -1,5 +1,6 @@
 package edu.isel.pdm.li51xd.g08.drag.repo
 
+import android.util.Log
 import com.android.volley.NetworkResponse
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonRequest
@@ -15,6 +16,7 @@ class GetRandomWordsRequest(
 ) : JsonRequest<Array<WordnikWordDto>>(Method.GET, url, "", success, error) {
 
     override fun parseNetworkResponse(response: NetworkResponse): Response<Array<WordnikWordDto>> {
+        Log.v("DRAG", "Wordnik Response: ${response.statusCode} | ${response.data}")
         val wordsDto = mapper.readValue(String(response.data), Array<WordnikWordDto>::class.java)
         return Response.success(wordsDto, null)
     }
