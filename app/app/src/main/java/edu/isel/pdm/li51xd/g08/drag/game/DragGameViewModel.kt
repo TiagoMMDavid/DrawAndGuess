@@ -147,7 +147,9 @@ class DragGameViewModel(app: Application, private val savedState: SavedStateHand
     }
 
     fun exitGame() {
-        app.repo.exitGame(gameInfo.id, player)
+        if (gameMode == ONLINE) {
+            app.repo.exitGame(gameInfo.id, player)
+        }
     }
 
     fun startGame() {
