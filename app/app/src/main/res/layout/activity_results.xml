@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".game.DragResultsActivity">
+
+    <RelativeLayout
+        android:id="@+id/drawGuessTimer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_weight="1"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/drawing"
+        app:layout_constraintStart_toStartOf="@+id/drawing"
+        app:layout_constraintTop_toBottomOf="@+id/indexBar">
+
+        <ProgressBar
+            android:id="@+id/drawGuessTimerProgress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:indeterminate="false"
+            android:layoutDirection="rtl"
+            android:max="100"
+            android:progress="100"
+            android:progressDrawable="@drawable/circle_progress_bar" />
+
+        <TextView
+            android:id="@+id/drawGuessTimerText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@id/drawGuessTimerProgress"
+            android:layout_alignTop="@id/drawGuessTimerProgress"
+            android:layout_alignEnd="@id/drawGuessTimerProgress"
+            android:layout_alignBottom="@id/drawGuessTimerProgress"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:padding="10dp"
+            android:text="60" />
+
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/roundEndText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/roundEnding"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/drawing"
+        app:layout_constraintStart_toStartOf="@+id/drawing"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <edu.isel.pdm.li51xd.g08.drag.game.view.DrawingView
+        android:id="@+id/drawing"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="18dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="18dp"
+        android:background="@color/colorCanvas"
+        app:layout_constraintBottom_toTopOf="@+id/indexBar"
+        app:layout_constraintDimensionRatio="0.6"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/playerSelector" />
+
+    <Button
+        android:id="@+id/finishButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="@string/finishGame"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/drawing"
+        app:layout_constraintStart_toStartOf="@+id/drawing" />
+
+    <TextView
+        android:id="@+id/guessText"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:textAlignment="center"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toBottomOf="@+id/drawing"
+        app:layout_constraintEnd_toEndOf="@+id/drawing"
+        app:layout_constraintStart_toStartOf="@+id/drawing"
+        app:layout_constraintTop_toTopOf="@+id/drawing" />
+
+    <ProgressBar
+        android:id="@+id/indexBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:clickable="false"
+        app:layout_constraintBottom_toTopOf="@+id/finishButton"
+        app:layout_constraintEnd_toEndOf="@+id/drawing"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/drawing" />
+
+    <edu.isel.pdm.li51xd.g08.drag.utils.SwipeActionView
+        android:id="@+id/swipeZone"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/indexBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/drawing" />
+
+    <Spinner
+        android:id="@+id/playerSelector"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="@+id/drawing"
+        app:layout_constraintStart_toStartOf="@+id/drawing"
+        app:layout_constraintTop_toBottomOf="@+id/roundEndText" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

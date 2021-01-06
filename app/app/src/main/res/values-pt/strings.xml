@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DRAG</string>
+
+    <string name="start">Iniciar</string>
+    <string name="createLobby">Criar sala</string>
+    <string name="finishGame">Terminar</string>
+    <string name="offlineMode">Jogo local</string>
+    <string name="onlineMode">Jogo distribuído</string>
+    <string name="guessHint">A sua tentativa…</string>
+    <string name="localPlayer">Jogador Local</string>
+
+    <string name="roundNumber">Número de Rondas</string>
+    <string name="playerNumber">Número de Jogadores</string>
+    <string name="roundEnding">Fim da Ronda %1$d de %2$d</string>
+
+    <string name="lobbyPlayerNameHint">Insira o seu nome…</string>
+    <string name="lobbyNameHint">Insira o nome da sala…</string>
+    <string name="lobbyList">Lista de Salas</string>
+    <string name="lobbyListNoLobbies">Nenhuma sala encontrada</string>
+    <string name="lobbyListSwipeDown">Deslize para baixo para atualizar a lista</string>
+    <string name="lobbyInfo">[Jogadores: %1$d/%2$d] [Rondas: %3$d]</string>
+    <string name="lobbyWaiting">À espera de jogadores…</string>
+    <string name="resultsWaiting">A obter resultados…</string>
+
+    <string name="error">Erro!</string>
+    <string name="errorNoPlayerName">Por favor insira o seu nome!</string>
+    <string name="errorNoLobbyName">Por favor insira o nome da sala!</string>
+    <string name="errorGetLobbies">Erro na busca de salas!</string>
+    <string name="errorCreateLobby">Erro na criação da sala!</string>
+    <string name="errorJoinLobby">Erro ao juntar-se à sala! Por favor tente novamente.</string>
+    <string name="errorWordnik">Erro na busca de palavras!</string>
+    <string name="errorInGame">Um erro ocorreu durante o jogo! Um jogador poderá ter saído.</string>
+    <string name="errorGetResults">Erro ao obter resultados!</string>
+</resources>
