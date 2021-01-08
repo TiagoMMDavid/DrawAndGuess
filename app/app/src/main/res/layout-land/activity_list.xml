@@ -50,6 +50,7 @@
         android:layout_marginEnd="32dp"
         android:layout_marginBottom="4dp"
         android:text="@string/createLobby"
+        android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
