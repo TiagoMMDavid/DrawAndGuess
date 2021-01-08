@@ -2,22 +2,11 @@ package edu.isel.pdm.li51xd.g08.drag.game
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View.GONE
-import android.view.View.INVISIBLE
-import android.view.View.VISIBLE
+import android.view.View.*
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import edu.isel.pdm.li51xd.g08.drag.GAME_CONFIGURATION_KEY
-import edu.isel.pdm.li51xd.g08.drag.GAME_MODE_KEY
-import edu.isel.pdm.li51xd.g08.drag.LOBBY_INFO_KEY
-import edu.isel.pdm.li51xd.g08.drag.MAX_PLAYERS
-import edu.isel.pdm.li51xd.g08.drag.MAX_ROUNDS
-import edu.isel.pdm.li51xd.g08.drag.MIN_PLAYERS
-import edu.isel.pdm.li51xd.g08.drag.MIN_ROUNDS
-import edu.isel.pdm.li51xd.g08.drag.PLAYER_KEY
-import edu.isel.pdm.li51xd.g08.drag.R
-import edu.isel.pdm.li51xd.g08.drag.WORDS_KEY
+import edu.isel.pdm.li51xd.g08.drag.*
 import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityConfigureBinding
 import edu.isel.pdm.li51xd.g08.drag.game.model.GameConfiguration
 import edu.isel.pdm.li51xd.g08.drag.game.model.Mode

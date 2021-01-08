@@ -1,29 +1,18 @@
 package edu.isel.pdm.li51xd.g08.drag.game
 
 import android.app.Application
+import android.os.CountDownTimer
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import com.google.firebase.firestore.ListenerRegistration
-import edu.isel.pdm.li51xd.g08.drag.CURR_DRAWGUESS_KEY
-import edu.isel.pdm.li51xd.g08.drag.DragApplication
-import edu.isel.pdm.li51xd.g08.drag.GAME_CONFIGURATION_KEY
-import edu.isel.pdm.li51xd.g08.drag.GAME_INFO_KEY
-import edu.isel.pdm.li51xd.g08.drag.GAME_MODE_KEY
-import edu.isel.pdm.li51xd.g08.drag.GAME_STATE_KEY
-import edu.isel.pdm.li51xd.g08.drag.IS_WORK_CANCELLED
-import edu.isel.pdm.li51xd.g08.drag.PLAYER_KEY
-import edu.isel.pdm.li51xd.g08.drag.PLAYER_LEFT_KEY
-import edu.isel.pdm.li51xd.g08.drag.WORDS_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.DrawGuess
-import edu.isel.pdm.li51xd.g08.drag.game.model.GameConfiguration
-import edu.isel.pdm.li51xd.g08.drag.game.model.GameState
-import edu.isel.pdm.li51xd.g08.drag.game.model.Mode
+import edu.isel.pdm.li51xd.g08.drag.*
+import edu.isel.pdm.li51xd.g08.drag.game.model.*
 import edu.isel.pdm.li51xd.g08.drag.game.model.Mode.OFFLINE
 import edu.isel.pdm.li51xd.g08.drag.game.model.Mode.ONLINE
-import edu.isel.pdm.li51xd.g08.drag.game.model.Player
 import edu.isel.pdm.li51xd.g08.drag.remote.model.GameInfo
+import edu.isel.pdm.li51xd.g08.drag.utils.CountDownTimerAdapter
 import edu.isel.pdm.li51xd.g08.drag.utils.runDelayed
 import edu.isel.pdm.li51xd.g08.drag.utils.toValueList
 
@@ -55,11 +44,20 @@ class DragResultsViewModel(app: Application, private val savedState: SavedStateH
     var playerLeft: Boolean = savedState.get(PLAYER_LEFT_KEY) ?: false
         set(value) { savedState[PLAYER_LEFT_KEY] = value; field = value }
 
+    var timeLeft: Long = savedState[COUNTDOWN_TIME_LEFT_KEY] ?: RESULTS_TIME
+        set(value) { savedState[COUNTDOWN_TIME_LEFT_KEY] = value; field = value }
+
+    private var timer: CountDownTimer? = null
+
     private var gameSubscription: ListenerRegistration? = null
 
     private var isScheduled: Boolean = false
     private var isWorkCancelled: Boolean = savedState[IS_WORK_CANCELLED] ?: false
         set(value) { savedState[IS_WORK_CANCELLED] = value; field = value }
+
+    override fun onCleared() {
+        clearSubscription()
+    }
 
     fun scheduleWork(millis: Long, work: () -> Unit) {
         if (!isScheduled && !isWorkCancelled) {
@@ -72,6 +70,16 @@ class DragResultsViewModel(app: Application, private val savedState: SavedStateH
 
     fun cancelWork() {
         isWorkCancelled = true
+    }
+
+    fun startTimer(onTickListener: (Long) -> Unit) {
+        timer?.cancel()
+
+        timer = CountDownTimerAdapter(timeLeft, COUNTDOWN_INTERVAL) { millisUntilFinished ->
+            timeLeft = millisUntilFinished
+            onTickListener(millisUntilFinished)
+        }
+        timer?.start()
     }
 
     fun gatherResults(finishedGatheringListener: () -> Unit) {

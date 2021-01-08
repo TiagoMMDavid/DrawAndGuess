@@ -1,36 +1,23 @@
 package edu.isel.pdm.li51xd.g08.drag.game
 
 import android.app.Application
+import android.os.CountDownTimer
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import com.google.firebase.firestore.ListenerRegistration
-import edu.isel.pdm.li51xd.g08.drag.CURR_BOOK_OWNER_KEY
-import edu.isel.pdm.li51xd.g08.drag.CURR_DRAWGUESS_KEY
-import edu.isel.pdm.li51xd.g08.drag.DragApplication
-import edu.isel.pdm.li51xd.g08.drag.GAME_CONFIGURATION_KEY
-import edu.isel.pdm.li51xd.g08.drag.GAME_INFO_KEY
-import edu.isel.pdm.li51xd.g08.drag.GAME_MODE_KEY
-import edu.isel.pdm.li51xd.g08.drag.GAME_STATE_KEY
-import edu.isel.pdm.li51xd.g08.drag.IS_WORK_CANCELLED
-import edu.isel.pdm.li51xd.g08.drag.PENDING_DRAWGUESS_KEY
-import edu.isel.pdm.li51xd.g08.drag.PLAYER_KEY
-import edu.isel.pdm.li51xd.g08.drag.WORDS_KEY
-import edu.isel.pdm.li51xd.g08.drag.game.model.DrawGuess
-import edu.isel.pdm.li51xd.g08.drag.game.model.Drawing
-import edu.isel.pdm.li51xd.g08.drag.game.model.GameConfiguration
-import edu.isel.pdm.li51xd.g08.drag.game.model.GameState
-import edu.isel.pdm.li51xd.g08.drag.game.model.Mode
-import edu.isel.pdm.li51xd.g08.drag.game.model.Mode.OFFLINE
-import edu.isel.pdm.li51xd.g08.drag.game.model.Mode.ONLINE
-import edu.isel.pdm.li51xd.g08.drag.game.model.Mode.valueOf
-import edu.isel.pdm.li51xd.g08.drag.game.model.Player
-import edu.isel.pdm.li51xd.g08.drag.game.model.Point
-import edu.isel.pdm.li51xd.g08.drag.game.model.Vector
-import edu.isel.pdm.li51xd.g08.drag.game.model.Word
+import edu.isel.pdm.li51xd.g08.drag.*
+import edu.isel.pdm.li51xd.g08.drag.game.model.*
+import edu.isel.pdm.li51xd.g08.drag.game.model.DrawGuess.DrawGuessType.DRAWING
+import edu.isel.pdm.li51xd.g08.drag.game.model.DrawGuess.DrawGuessType.WORD
+import edu.isel.pdm.li51xd.g08.drag.game.model.GameState.State
+import edu.isel.pdm.li51xd.g08.drag.game.model.GameState.State.GUESSING
+import edu.isel.pdm.li51xd.g08.drag.game.model.GameState.State.RESULTS
+import edu.isel.pdm.li51xd.g08.drag.game.model.Mode.*
 import edu.isel.pdm.li51xd.g08.drag.remote.model.GameInfo
 import edu.isel.pdm.li51xd.g08.drag.remote.model.PlayerDrawGuess
+import edu.isel.pdm.li51xd.g08.drag.utils.CountDownTimerAdapter
 import edu.isel.pdm.li51xd.g08.drag.utils.runDelayed
 import edu.isel.pdm.li51xd.g08.drag.utils.toValueList
 
@@ -62,6 +49,11 @@ class DragGameViewModel(app: Application, private val savedState: SavedStateHand
         MutableLiveData(savedState[CURR_DRAWGUESS_KEY])
     }
 
+    var timeLeft: Long = savedState[COUNTDOWN_TIME_LEFT_KEY] ?: DRAWGUESS_TIME
+        set(value) { savedState[COUNTDOWN_TIME_LEFT_KEY] = value; field = value }
+
+    private var timer: CountDownTimer? = null
+
     private val nextPlayerId: String by lazy {
         val players = gameInfo.players.toValueList().sortedBy { it.idx }
         var id: String? = null
@@ -86,6 +78,10 @@ class DragGameViewModel(app: Application, private val savedState: SavedStateHand
     private var isWorkCancelled: Boolean = savedState[IS_WORK_CANCELLED] ?: false
         set(value) { savedState[IS_WORK_CANCELLED] = value; field = value }
 
+    override fun onCleared() {
+        clearSubscriptions()
+    }
+
     fun scheduleWork(millis: Long, work: () -> Unit) {
         if (!isScheduled && !isWorkCancelled) {
             isScheduled = true
@@ -102,7 +98,22 @@ class DragGameViewModel(app: Application, private val savedState: SavedStateHand
         isWorkCancelled = true
     }
 
-    fun clearSubscription() {
+    fun startTimer(onTickListener: (Long) -> Unit) {
+        timer?.cancel()
+
+        timer = CountDownTimerAdapter(timeLeft, COUNTDOWN_INTERVAL) { millisUntilFinished ->
+            timeLeft = millisUntilFinished
+            onTickListener(millisUntilFinished)
+        }
+        timer?.start()
+    }
+
+    fun resetTimer() {
+        timer?.cancel()
+        timeLeft = DRAWGUESS_TIME
+    }
+
+    fun clearSubscriptions() {
         drawGuessSubscription?.remove()
         gameSubscription?.remove()
     }
@@ -110,8 +121,8 @@ class DragGameViewModel(app: Application, private val savedState: SavedStateHand
     private fun consumeDrawGuess(drawGuess: PlayerDrawGuess?) {
         if (drawGuess != null) {
             currentBookOwnerId = drawGuess.bookOwnerId
-            (currentDrawGuess as MutableLiveData<DrawGuess>).value = drawGuess.drawGuess
             savedState[CURR_DRAWGUESS_KEY] = drawGuess.drawGuess
+            (currentDrawGuess as MutableLiveData<DrawGuess>).value = drawGuess.drawGuess
         }
     }
 
@@ -124,7 +135,11 @@ class DragGameViewModel(app: Application, private val savedState: SavedStateHand
                             (currentDrawGuess as MutableLiveData<DrawGuess>).value = null
                         },
                         onStateChange = {
-                            if (currentBookOwnerId == null) consumeDrawGuess(it)
+                            val correctState = when (it.drawGuess.getType()) {
+                                DRAWING -> GUESSING
+                                WORD -> State.DRAWING
+                            }
+                            if (correctState == game.state) consumeDrawGuess(it)
                             else pendingDrawGuess = it
                         }
                     )
@@ -165,7 +180,7 @@ class DragGameViewModel(app: Application, private val savedState: SavedStateHand
             player.book.add(startingWord)
         }
 
-        game.state = GameState.State.DRAWING
+        game.state = State.DRAWING
         if (gameMode == ONLINE) {
             subscribeIfNeeded()
             currentBookOwnerId = player.id
@@ -183,7 +198,7 @@ class DragGameViewModel(app: Application, private val savedState: SavedStateHand
         }
 
         if (++game.playCount == config.playerCount) {
-            game.state = GameState.State.RESULTS
+            game.state = RESULTS
 
             if (gameMode == ONLINE) {
                 app.repo.addDrawGuessToBook(gameInfo.id, currentBookOwnerId!!, currentDrawing)
@@ -191,7 +206,7 @@ class DragGameViewModel(app: Application, private val savedState: SavedStateHand
             (currentDrawGuess as MutableLiveData<DrawGuess>).value = null
             savedState[CURR_DRAWGUESS_KEY] = null
         } else {
-            game.state = GameState.State.GUESSING
+            game.state = GUESSING
             when(gameMode) {
                 OFFLINE -> {
                     (currentDrawGuess as MutableLiveData<DrawGuess>).value = currentDrawing
@@ -200,7 +215,6 @@ class DragGameViewModel(app: Application, private val savedState: SavedStateHand
                 ONLINE -> {
                     app.repo.addDrawGuessToBook(gameInfo.id, currentBookOwnerId!!, currentDrawing)
                     app.repo.sendDrawGuess(gameInfo.id, nextPlayerId, currentBookOwnerId!!, currentDrawing)
-                    currentBookOwnerId = null
                     consumeDrawGuess(pendingDrawGuess)
                     pendingDrawGuess = null
                 }
@@ -216,14 +230,14 @@ class DragGameViewModel(app: Application, private val savedState: SavedStateHand
         game.currentDrawing.clear()
 
         if (++game.playCount == config.playerCount) {
-            game.state = GameState.State.RESULTS
+            game.state = RESULTS
             if (gameMode == ONLINE) {
                 app.repo.addDrawGuessToBook(gameInfo.id, currentBookOwnerId!!, wordGuess)
             }
             (currentDrawGuess as MutableLiveData<DrawGuess>).value = null
             savedState[CURR_DRAWGUESS_KEY] = null
         } else {
-            game.state = GameState.State.DRAWING
+            game.state = State.DRAWING
             when(gameMode) {
                 OFFLINE -> {
                     (currentDrawGuess as MutableLiveData<DrawGuess>).value = wordGuess
@@ -232,7 +246,6 @@ class DragGameViewModel(app: Application, private val savedState: SavedStateHand
                 ONLINE -> {
                     app.repo.addDrawGuessToBook(gameInfo.id, currentBookOwnerId!!, wordGuess)
                     app.repo.sendDrawGuess(gameInfo.id, nextPlayerId, currentBookOwnerId!!, wordGuess)
-                    currentBookOwnerId = null
                     consumeDrawGuess(pendingDrawGuess)
                     pendingDrawGuess = null
                 }

@@ -1,18 +1,16 @@
 package edu.isel.pdm.li51xd.g08.drag.remote
 
 import android.app.Application
+import android.os.CountDownTimer
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
-import edu.isel.pdm.li51xd.g08.drag.DragApplication
-import edu.isel.pdm.li51xd.g08.drag.GAME_INFO_KEY
-import edu.isel.pdm.li51xd.g08.drag.LOBBY_INFO_KEY
-import edu.isel.pdm.li51xd.g08.drag.PLAYER_KEY
-import edu.isel.pdm.li51xd.g08.drag.WORDS_KEY
+import edu.isel.pdm.li51xd.g08.drag.*
 import edu.isel.pdm.li51xd.g08.drag.game.model.Player
 import edu.isel.pdm.li51xd.g08.drag.remote.model.GameInfo
 import edu.isel.pdm.li51xd.g08.drag.remote.model.LobbyInfo
+import edu.isel.pdm.li51xd.g08.drag.utils.CountDownTimerAdapter
 import edu.isel.pdm.li51xd.g08.drag.utils.runDelayed
 
 class DragLobbyViewModel(application: Application, private val savedState: SavedStateHandle) : AndroidViewModel(application) {
@@ -36,6 +34,11 @@ class DragLobbyViewModel(application: Application, private val savedState: Saved
         liveData
     }
 
+    var timeLeft: Long = savedState[COUNTDOWN_TIME_LEFT_KEY] ?: LOBBY_COUNTDOWN_TIME
+        set(value) { savedState[COUNTDOWN_TIME_LEFT_KEY] = value; field = value }
+
+    private var timer: CountDownTimer? = null
+
     private val lobbySubscription = app.repo.subscribeToLobby(
         lobbyInfo.value!!.id,
         onSubscriptionError = { (lobbyInfo as MutableLiveData<LobbyInfo>).value = null },
@@ -56,6 +59,11 @@ class DragLobbyViewModel(application: Application, private val savedState: Saved
 
     private var isScheduled: Boolean = false
 
+    override fun onCleared() {
+        timer?.cancel()
+        clearSubscriptions()
+    }
+
     fun scheduleWork(millis: Long, work: () -> Unit) {
         if (!isScheduled) {
             isScheduled = true
@@ -63,6 +71,16 @@ class DragLobbyViewModel(application: Application, private val savedState: Saved
                 work()
             }
         }
+    }
+
+    fun startTimer(onTickListener: (Long) -> Unit) {
+        timer?.cancel()
+
+        timer = CountDownTimerAdapter(timeLeft, COUNTDOWN_INTERVAL) { millisUntilFinished ->
+            timeLeft = millisUntilFinished
+            onTickListener(millisUntilFinished)
+        }
+        timer?.start()
     }
 
     fun clearSubscriptions() {

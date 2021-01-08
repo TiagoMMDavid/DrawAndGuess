@@ -4,23 +4,14 @@ import android.R.layout
 import android.animation.ObjectAnimator
 import android.content.Intent
 import android.os.Bundle
-import android.os.CountDownTimer
 import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import edu.isel.pdm.li51xd.g08.drag.COUNTDOWN_INTERVAL
-import edu.isel.pdm.li51xd.g08.drag.COUNTDOWN_TIME_LEFT_KEY
-import edu.isel.pdm.li51xd.g08.drag.GAME_CONFIGURATION_KEY
-import edu.isel.pdm.li51xd.g08.drag.GAME_INFO_KEY
-import edu.isel.pdm.li51xd.g08.drag.GAME_MODE_KEY
-import edu.isel.pdm.li51xd.g08.drag.GAME_STATE_KEY
-import edu.isel.pdm.li51xd.g08.drag.PLAYER_KEY
+import edu.isel.pdm.li51xd.g08.drag.*
 import edu.isel.pdm.li51xd.g08.drag.R.string
-import edu.isel.pdm.li51xd.g08.drag.RESULTS_TIME
-import edu.isel.pdm.li51xd.g08.drag.WORDS_KEY
 import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityResultsBinding
 import edu.isel.pdm.li51xd.g08.drag.game.model.DrawGuess
 import edu.isel.pdm.li51xd.g08.drag.game.model.DrawGuess.DrawGuessType.DRAWING
@@ -31,7 +22,6 @@ import edu.isel.pdm.li51xd.g08.drag.game.model.Mode.ONLINE
 import edu.isel.pdm.li51xd.g08.drag.game.model.Player
 import edu.isel.pdm.li51xd.g08.drag.game.model.Word
 import edu.isel.pdm.li51xd.g08.drag.remote.model.GameInfo
-import edu.isel.pdm.li51xd.g08.drag.utils.CountDownTimerAdapter
 import edu.isel.pdm.li51xd.g08.drag.utils.OnItemSelectedListenerAdapter
 
 private const val RESULT_INDEX_KEY = "DRAG.ResultIndex"
@@ -47,20 +37,16 @@ class DragResultsActivity : AppCompatActivity() {
     private var isLastRound : Boolean = true
 
     private var currResultIndex = 0
-    private var timer: CountDownTimer? = null
-    private var timeLeft: Long = RESULTS_TIME
 
-    private fun startTimer(time: Long) {
+    private fun startTimer() {
         // Set max progress to 1 second less in order to present the bar as full when the timer starts
         binding.drawGuessTimerProgress.max = RESULTS_TIME.toInt() - 1000
         binding.drawGuessTimerProgress.progress = RESULTS_TIME.toInt() - 1000
 
-        timer = CountDownTimerAdapter(time, COUNTDOWN_INTERVAL) { millisUntilFinished ->
-            timeLeft = millisUntilFinished
-            binding.drawGuessTimerText.text = "${millisUntilFinished / COUNTDOWN_INTERVAL}"
-            binding.drawGuessTimerProgress.progress = (millisUntilFinished - COUNTDOWN_INTERVAL).toInt()
+        viewModel.startTimer {
+            binding.drawGuessTimerText.text = "${it / COUNTDOWN_INTERVAL}"
+            binding.drawGuessTimerProgress.progress = (it - COUNTDOWN_INTERVAL).toInt()
         }
-        timer?.start()
     }
 
     private fun startGame() {
@@ -156,8 +142,8 @@ class DragResultsActivity : AppCompatActivity() {
     private fun setupTimerAndButton() {
         if (!isLastRound) {
             binding.drawGuessTimer.visibility = View.VISIBLE
-            startTimer(timeLeft)
-            viewModel.scheduleWork(timeLeft) {
+            startTimer()
+            viewModel.scheduleWork(viewModel.timeLeft) {
                 viewModel.clearSubscription()
                 viewModel.deleteRound()
                 startGame()
@@ -187,7 +173,6 @@ class DragResultsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        timeLeft = savedInstanceState?.getLong(COUNTDOWN_TIME_LEFT_KEY, RESULTS_TIME) ?: RESULTS_TIME
         isLastRound = viewModel.game.currRound == viewModel.config.roundCount
 
         if (savedInstanceState != null)
@@ -214,8 +199,6 @@ class DragResultsActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putInt(RESULT_INDEX_KEY, currResultIndex)
-        outState.putLong(COUNTDOWN_TIME_LEFT_KEY, timeLeft)
-        timer?.cancel()
     }
 
     override fun onBackPressed() {

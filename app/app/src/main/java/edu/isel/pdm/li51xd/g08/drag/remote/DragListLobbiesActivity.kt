@@ -8,12 +8,7 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import edu.isel.pdm.li51xd.g08.drag.GAME_MODE_KEY
-import edu.isel.pdm.li51xd.g08.drag.LOBBY_INFO_KEY
-import edu.isel.pdm.li51xd.g08.drag.PLAYER_KEY
-import edu.isel.pdm.li51xd.g08.drag.PLAYER_NAME_KEY
-import edu.isel.pdm.li51xd.g08.drag.R
-import edu.isel.pdm.li51xd.g08.drag.WORDS_KEY
+import edu.isel.pdm.li51xd.g08.drag.*
 import edu.isel.pdm.li51xd.g08.drag.databinding.ActivityListBinding
 import edu.isel.pdm.li51xd.g08.drag.game.DragConfigureActivity
 import edu.isel.pdm.li51xd.g08.drag.game.model.Mode
