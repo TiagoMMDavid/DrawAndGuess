@@ -18,7 +18,8 @@ At the end of each round all the results are displayed to the players allowing e
 ## Functionalities
 Draw And Guess exposes the following functionalities:
 - Functional and intuitive Android Application of the draw and guess game
-- Provides two modes
+- Supports portrait and landscape orientation for all activities
+- Provides two game modes
   - Local mode
   - Online mode
 - Allows game configuration
@@ -27,7 +28,7 @@ Draw And Guess exposes the following functionalities:
 - Gathers random words through the [Wordnik API](https://developer.wordnik.com/)
 - Displays a canvas for the players to draw and guess
 - Displays a result screen where all the iterations of the board are shown
-- Supports online matchmaking through [Firestore](...)
+- Supports online matchmaking through [Firestore](https://firebase.google.com/docs/firestore)
   - Lists all the available lobbies
   - Possibility to create and join lobbies
   - Lists the players in a lobby
@@ -35,7 +36,7 @@ Draw And Guess exposes the following functionalities:
   - Cancels games when a player disconnects
 
 ## Preview
-... (screenshots here) ...
+<img src="resources/app-preview.png" width="850">
 
 ## ...
 ...
