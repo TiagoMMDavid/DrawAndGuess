@@ -12,7 +12,9 @@ At the end of each round all the results are displayed to the players allowing e
 ## Table of Contents
 - [Functionalities](#functionalities)
 - [Preview](#preview)
-- [...](#...)
+- [Requirements](#requirements)
+  - [Wordnik API](#accessing-wordnik-api)
+  - [Firestore](#firestore)
 - [Credits](#credits)
 
 ## Functionalities
@@ -38,8 +40,29 @@ Draw And Guess exposes the following functionalities:
 ## Preview
 <img src="resources/app-preview.png" width="850">
 
-## ...
-...
+## Requirements
+Before building and running the application, the following steps are necessary:
+
+### Wordnik API
+As stated in the [overview](#overview) section, every game starts with a random word. The gathering of a random word is done by the use of the [Wordnik API](https://developer.wordnik.com/). In order to make requests to the Wordnik HTTP API an API Key is necessary. This API Key can be requested [here](https://developer.wordnik.com/).
+
+Upon receiving the API Key, it has to be placed in the [secret.properties](app/secret.properties) file as the value of `wordnikApiKey`.
+
+After setting the API Key in its respective place, the application will take care of reading the file and the API Key provided.
+
+### Firestore
+In order for online matchmaking to function, there needs to be the configuration of a Firestore project in the context of an Android application.
+
+To achieve this, follow the next steps:
+1. Create a Firebase project [here](https://console.firebase.google.com/)
+2. In the center of the project overview page, click the *Android* icon or *Add app* to launch the setup workflow
+3. Enter your app's package name in the Android package name field (If unchanged, the package name is `edu.isel.pdm.li51xd.g08.drag`)
+4. Click *Register app*
+5. Click *Download google-services.json* to obtain your Firebase Android config file (`google-services.json`)
+6. Move the config file (`google-services.json`) into the module (app-level) directory of the app ([here](app/app))
+7. Create a Firestore database for the project, making sure there is permission to read/write data
+
+A more detailed guide is available [here](https://firebase.google.com/docs/android/setup).
 
 ## Credits
 This application was implemented in the context of the Mobile Device Programming class at [ISEL](https://www.isel.pt/).
