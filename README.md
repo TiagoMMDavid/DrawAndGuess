@@ -13,7 +13,7 @@ At the end of each round all the results are displayed to the players allowing e
 - [Functionalities](#functionalities)
 - [Preview](#preview)
 - [Requirements](#requirements)
-  - [Wordnik API](#accessing-wordnik-api)
+  - [Wordnik API](#wordnik-api)
   - [Firestore](#firestore)
 - [Credits](#credits)
 
@@ -55,10 +55,10 @@ In order for online matchmaking to function, there needs to be the configuration
 
 To achieve this, follow the next steps:
 1. Create a Firebase project [here](https://console.firebase.google.com/)
-2. In the center of the project overview page, click the *Android* icon or *Add app* to launch the setup workflow
+2. In the center of the project overview page, click the **Android** icon or **Add app** to launch the setup workflow
 3. Enter your app's package name in the Android package name field (If unchanged, the package name is `edu.isel.pdm.li51xd.g08.drag`)
-4. Click *Register app*
-5. Click *Download google-services.json* to obtain your Firebase Android config file (`google-services.json`)
+4. Click **Register app**
+5. Click **Download google-services.json** to obtain your Firebase Android config file (`google-services.json`)
 6. Move the config file (`google-services.json`) into the module (app-level) directory of the app ([here](app/app))
 7. Create a Firestore database for the project, making sure there is permission to read/write data
 
