@@ -26,7 +26,7 @@ const val WORDS_KEY = "DRAG.Words"
 /**
  * Configurations
  */
-const val MIN_PLAYERS = 2
+const val MIN_PLAYERS = 3
 const val MAX_PLAYERS = 10
 
 const val MIN_ROUNDS = 1
