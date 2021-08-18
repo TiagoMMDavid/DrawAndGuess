@@ -65,7 +65,7 @@ To achieve this, follow the next steps:
 A more detailed guide is available [here](https://firebase.google.com/docs/android/setup).
 
 ## Credits
-This application was implemented in the context of the Mobile Device Programming class at [ISEL](https://www.isel.pt/).
+This application was developed for the Mobile Device Programming class (5th semester) at [ISEL](https://www.isel.pt/).
 
 Developed by:
 * [TiagoMMDavid](https://github.com/TiagoMMDavid)
