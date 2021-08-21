@@ -1,4 +1,4 @@
-# Draw And Guess
+# Draw And Guess (PDM Project)
 
 ## Overview
 Draw And Guess is a casual and creative drawing game for 3-10 people! The game is built for Android and supports local and online multiplayer.
